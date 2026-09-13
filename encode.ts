@@ -1,0 +1,183 @@
+import { ClassRegistry } from '@civ-clone/core-data-object/ClassRegistry';
+import { DataObject, typeNameOf } from '@civ-clone/core-data-object/DataObject';
+import { SaveError } from './SaveGame';
+
+/**
+ * A reference to another saved entity. The only way the graph terminates:
+ * `City._player` holds a `Player` whose `_civilization` holds a
+ * `Civilization`, and `City._tile` reaches the `World` and through it every
+ * tile. Inlining any of that either never terminates or writes the same data
+ * hundreds of times.
+ */
+export type Ref = { $ref: string };
+
+/** A class rather than an instance — `PlayerResearch._researching`. */
+export type ClassRef = { $class: string };
+
+export type EncodedMap = { $map: [unknown, unknown][] };
+export type EncodedSet = { $set: unknown[] };
+
+const isDataObject = (value: unknown): value is DataObject =>
+  typeof value === 'object' &&
+  value !== null &&
+  typeof (value as DataObject).id === 'function' &&
+  typeof (value as DataObject).stateKeys === 'function';
+
+/**
+ * A registry, structurally.
+ *
+ * `World._tiles` is an `EntityRegistry<Tile>` and is real state, so a registry
+ * *held as a field* has to be encoded rather than skipped — unlike the
+ * `Game`-level registries, whose membership is recorded separately.
+ */
+const isRegistry = (value: unknown): value is { entries(): unknown[] } =>
+  typeof value === 'object' &&
+  value !== null &&
+  typeof (value as { entries?: unknown }).entries === 'function' &&
+  !Array.isArray(value);
+
+export type EncodeOptions = {
+  /**
+   * Called for every `DataObject` encountered. `save` uses it to discover
+   * entities reachable from a saved one but not present in any registry —
+   * `Spaceship._layout`, for instance — so they are written rather than
+   * dangling as a `$ref` to nothing.
+   */
+  onEntity?: (entity: DataObject) => void;
+};
+
+export const encode = (
+  value: unknown,
+  options: EncodeOptions = {}
+): unknown => {
+  if (value === null || value === undefined) {
+    return null;
+  }
+
+  if (isDataObject(value)) {
+    options.onEntity?.(value);
+
+    return { $ref: value.id() } as Ref;
+  }
+
+  if (typeof value === 'function') {
+    return {
+      $class: typeNameOf(value as unknown as { name: string }),
+    } as ClassRef;
+  }
+
+  if (Array.isArray(value)) {
+    return value.map((item) => encode(item, options));
+  }
+
+  if (value instanceof Map) {
+    return {
+      $map: [...value.entries()].map(([key, item]) => [
+        encode(key, options),
+        encode(item, options),
+      ]),
+    } as EncodedMap;
+  }
+
+  if (value instanceof Set) {
+    return {
+      $set: [...value].map((item) => encode(item, options)),
+    } as EncodedSet;
+  }
+
+  if (isRegistry(value)) {
+    // As an array of encoded members. A registry field is a container, and its
+    // identity is its membership in order — `World._tiles` is the case that
+    // matters, and its members are entities, so this becomes a list of `$ref`s.
+    return value.entries().map((item) => encode(item, options));
+  }
+
+  if (typeof value === 'object') {
+    return Object.fromEntries(
+      Object.entries(value as object).map(([key, item]) => [
+        key,
+        encode(item, options),
+      ])
+    );
+  }
+
+  // Primitives, which includes `bigint` — and `JSON.stringify` throws on one
+  // rather than dropping it, so a counter that has run past
+  // `Number.MAX_SAFE_INTEGER` fails loudly at the point of saving.
+  return value;
+};
+
+export type DecodeContext = {
+  /** id → the allocated instance, complete before any filling starts. */
+  instances: Map<string, DataObject>;
+  classes: ClassRegistry;
+};
+
+const isRef = (value: unknown): value is Ref =>
+  typeof value === 'object' && value !== null && '$ref' in value;
+
+const isClassRef = (value: unknown): value is ClassRef =>
+  typeof value === 'object' && value !== null && '$class' in value;
+
+const isEncodedMap = (value: unknown): value is EncodedMap =>
+  typeof value === 'object' && value !== null && '$map' in value;
+
+const isEncodedSet = (value: unknown): value is EncodedSet =>
+  typeof value === 'object' && value !== null && '$set' in value;
+
+export const decode = (value: unknown, context: DecodeContext): unknown => {
+  if (value === null || typeof value !== 'object') {
+    return value;
+  }
+
+  if (Array.isArray(value)) {
+    return value.map((item) => decode(item, context));
+  }
+
+  if (isRef(value)) {
+    const instance = context.instances.get(value.$ref);
+
+    if (!instance) {
+      // A dangling reference is the one decoding failure that must not be
+      // tolerated: returning `null` would leave a `City` with no `_player`,
+      // and the first thing to notice would be a renderer crash several turns
+      // later rather than the load.
+      throw new SaveError(
+        `Save refers to entity '${value.$ref}', which it does not contain. ` +
+          'The file is incomplete or was written by a different version.'
+      );
+    }
+
+    return instance;
+  }
+
+  if (isClassRef(value)) {
+    const Class = context.classes.get(value.$class);
+
+    if (!Class) {
+      throw new SaveError(
+        `Save refers to the class '${value.$class}', which is not registered. ` +
+          'A plugin that was loaded when this was saved is missing now.'
+      );
+    }
+
+    return Class;
+  }
+
+  if (isEncodedMap(value)) {
+    return new Map(
+      value.$map.map(([key, item]) => [
+        decode(key, context),
+        decode(item, context),
+      ])
+    );
+  }
+
+  if (isEncodedSet(value)) {
+    return new Set(value.$set.map((item) => decode(item, context)));
+  }
+
+  return Object.fromEntries(
+    Object.entries(value).map(([key, item]) => [key, decode(item, context)])
+  );
+};

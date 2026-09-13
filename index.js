@@ -1,0 +1,22 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.save = exports.registerClasses = exports.gameForLoad = exports.hydrate = exports.assertCompatible = exports.encode = exports.decode = exports.slotsToSave = exports.DISPOSITIONS = exports.SaveError = exports.FORMAT = void 0;
+var SaveGame_1 = require("./SaveGame");
+Object.defineProperty(exports, "FORMAT", { enumerable: true, get: function () { return SaveGame_1.FORMAT; } });
+Object.defineProperty(exports, "SaveError", { enumerable: true, get: function () { return SaveGame_1.SaveError; } });
+var registries_1 = require("./registries");
+Object.defineProperty(exports, "DISPOSITIONS", { enumerable: true, get: function () { return registries_1.DISPOSITIONS; } });
+Object.defineProperty(exports, "slotsToSave", { enumerable: true, get: function () { return registries_1.slotsToSave; } });
+var encode_1 = require("./encode");
+Object.defineProperty(exports, "decode", { enumerable: true, get: function () { return encode_1.decode; } });
+Object.defineProperty(exports, "encode", { enumerable: true, get: function () { return encode_1.encode; } });
+var hydrate_1 = require("./hydrate");
+Object.defineProperty(exports, "assertCompatible", { enumerable: true, get: function () { return hydrate_1.assertCompatible; } });
+Object.defineProperty(exports, "hydrate", { enumerable: true, get: function () { return hydrate_1.hydrate; } });
+var gameForLoad_1 = require("./gameForLoad");
+Object.defineProperty(exports, "gameForLoad", { enumerable: true, get: function () { return gameForLoad_1.gameForLoad; } });
+var registerClasses_1 = require("./registerClasses");
+Object.defineProperty(exports, "registerClasses", { enumerable: true, get: function () { return registerClasses_1.registerClasses; } });
+var save_1 = require("./save");
+Object.defineProperty(exports, "save", { enumerable: true, get: function () { return save_1.save; } });
+//# sourceMappingURL=index.js.map
