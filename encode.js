@@ -1,8 +1,9 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.decode = exports.encode = void 0;
+exports.decode = exports.isBusyRef = exports.encode = void 0;
 const DataObject_1 = require("@civ-clone/core-data-object/DataObject");
 const SaveGame_1 = require("./SaveGame");
+const Rule_1 = require("@civ-clone/core-rule/Rule");
 const isDataObject = (value) => typeof value === 'object' &&
     value !== null &&
     typeof value.id === 'function' &&
@@ -30,6 +31,11 @@ const encode = (value, options = {}) => {
     if (isDataObject(value)) {
         (_a = options.onEntity) === null || _a === void 0 ? void 0 : _a.call(options, value);
         return { $ref: value.id() };
+    }
+    if (value instanceof Rule_1.default) {
+        return {
+            $busy: (0, DataObject_1.typeNameOf)(value.constructor),
+        };
     }
     if (typeof value === 'function') {
         const name = (0, DataObject_1.typeNameOf)(value);
@@ -89,6 +95,8 @@ const encode = (value, options = {}) => {
 exports.encode = encode;
 const isRef = (value) => typeof value === 'object' && value !== null && '$ref' in value;
 const isClassRef = (value) => typeof value === 'object' && value !== null && '$class' in value;
+const isBusyRef = (value) => typeof value === 'object' && value !== null && '$busy' in value;
+exports.isBusyRef = isBusyRef;
 const isEncodedMap = (value) => typeof value === 'object' && value !== null && '$map' in value;
 const isEncodedSet = (value) => typeof value === 'object' && value !== null && '$set' in value;
 const decode = (value, context) => {
@@ -109,6 +117,11 @@ const decode = (value, context) => {
                 'The file is incomplete or was written by a different version.');
         }
         return instance;
+    }
+    if ((0, exports.isBusyRef)(value)) {
+        // Left for `hydrate` to resolve: rebuilding one needs the entity that
+        // holds it, and `decode` is walking a field value with no idea whose it is.
+        return value;
     }
     if (isClassRef(value)) {
         const Class = context.classes.get(value.$class);

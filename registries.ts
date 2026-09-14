@@ -50,6 +50,10 @@ export const DISPOSITIONS: Record<keyof GameSlots, Disposition> = {
   playerResearch: 'state', // 4 PlayerResearch
   playerTradeRates: 'state', // 4 PlayerTradeRates
   playerTreasuries: 'state', // 4 PlayerTreasury
+  // What the game owes its entities — a unit part-way through building a road,
+  // a player owed free research. These are the *debts*; the handlers that
+  // discharge them are functions registered at import and are never saved.
+  pendingEffects: 'state',
   playerWorlds: 'state', // 4 PlayerWorld
   players: 'state', // 4 Player
   spaceships: 'state', // empty at turn 8; built late

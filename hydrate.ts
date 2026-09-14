@@ -5,7 +5,8 @@ import {
 import { FORMAT, SaveError, SaveGame } from './SaveGame';
 import { Game, GameSlots } from '@civ-clone/core-game/Game';
 import { DISPOSITIONS } from './registries';
-import { decode } from './encode';
+import { decode, isBusyRef } from './encode';
+import { instance as busyRegistryInstance } from '@civ-clone/core-unit/BusyRegistry';
 
 /**
  * Three tiers, from `03-save-format.md`, and the middle one is the reason they
@@ -110,6 +111,32 @@ export const hydrate = (save: SaveGame, game: Game): void => {
     Object.assign(entity, decode(state, context), {
       _id: id,
       _keys: [...keys],
+    });
+  });
+
+  // Pass 2b — rebuild the rules a unit was holding.
+  //
+  // Separate from the fill above because rebuilding one needs the entity that
+  // holds it: `decode` walks a field's value with no idea whose field it is,
+  // so it leaves the marker alone and this resolves it with the owner in hand.
+  //
+  // The rule itself is not restored — it is *rebuilt*, by the package that owns
+  // it, from the entity and whatever `PendingEffect` says about it. A delayed
+  // action's completion turn comes from that effect, which is why the order
+  // matters: the effects are filled by the loop above, so they are readable by
+  // the time a factory asks.
+  instances.forEach((entity) => {
+    const record = entity as unknown as Record<string, unknown>;
+
+    Object.keys(record).forEach((field) => {
+      const value = record[field];
+
+      if (isBusyRef(value)) {
+        record[field] = busyRegistryInstance.rebuild(
+          value.$busy,
+          entity as never
+        );
+      }
     });
   });
 

@@ -5,6 +5,7 @@ const DataObject_1 = require("@civ-clone/core-data-object/DataObject");
 const SaveGame_1 = require("./SaveGame");
 const registries_1 = require("./registries");
 const encode_1 = require("./encode");
+const BusyRegistry_1 = require("@civ-clone/core-unit/BusyRegistry");
 /**
  * Three tiers, from `03-save-format.md`, and the middle one is the reason they
  * are not one check:
@@ -81,6 +82,26 @@ const hydrate = (save, game) => {
         Object.assign(entity, (0, encode_1.decode)(state, context), {
             _id: id,
             _keys: [...keys],
+        });
+    });
+    // Pass 2b — rebuild the rules a unit was holding.
+    //
+    // Separate from the fill above because rebuilding one needs the entity that
+    // holds it: `decode` walks a field's value with no idea whose field it is,
+    // so it leaves the marker alone and this resolves it with the owner in hand.
+    //
+    // The rule itself is not restored — it is *rebuilt*, by the package that owns
+    // it, from the entity and whatever `PendingEffect` says about it. A delayed
+    // action's completion turn comes from that effect, which is why the order
+    // matters: the effects are filled by the loop above, so they are readable by
+    // the time a factory asks.
+    instances.forEach((entity) => {
+        const record = entity;
+        Object.keys(record).forEach((field) => {
+            const value = record[field];
+            if ((0, encode_1.isBusyRef)(value)) {
+                record[field] = BusyRegistry_1.instance.rebuild(value.$busy, entity);
+            }
         });
     });
     // Pass 3 — re-attach the collaborators and caches a file cannot carry, and

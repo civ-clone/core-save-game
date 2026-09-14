@@ -33,6 +33,7 @@ const PlayerResearch_1 = require("@civ-clone/core-science/PlayerResearch");
 const PlayerTile_1 = require("@civ-clone/core-player-world/PlayerTile");
 const PlayerTradeRates_1 = require("@civ-clone/core-trade-rate/PlayerTradeRates");
 const PlayerTreasury_1 = require("@civ-clone/core-treasury/PlayerTreasury");
+const PendingEffect_1 = require("@civ-clone/core-pending-effect/PendingEffect");
 const PlayerWorld_1 = require("@civ-clone/core-player-world/PlayerWorld");
 const Spaceship_1 = require("@civ-clone/core-spaceship/Spaceship");
 const Layout_1 = require("@civ-clone/core-spaceship/Layout");
@@ -83,6 +84,7 @@ const CORE_ENTITIES = [
     PlayerTile_1.default,
     PlayerTradeRates_1.default,
     PlayerTreasury_1.default,
+    PendingEffect_1.default,
     PlayerWorld_1.default,
     Spaceship_1.default,
     Layout_1.default,

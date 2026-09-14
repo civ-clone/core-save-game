@@ -33,6 +33,7 @@ import PlayerResearch from '@civ-clone/core-science/PlayerResearch';
 import PlayerTile from '@civ-clone/core-player-world/PlayerTile';
 import PlayerTradeRates from '@civ-clone/core-trade-rate/PlayerTradeRates';
 import PlayerTreasury from '@civ-clone/core-treasury/PlayerTreasury';
+import PendingEffect from '@civ-clone/core-pending-effect/PendingEffect';
 import PlayerWorld from '@civ-clone/core-player-world/PlayerWorld';
 import Spaceship from '@civ-clone/core-spaceship/Spaceship';
 import SpaceshipLayout from '@civ-clone/core-spaceship/Layout';
@@ -85,6 +86,7 @@ const CORE_ENTITIES: SaveableClass[] = [
   PlayerTile,
   PlayerTradeRates,
   PlayerTreasury,
+  PendingEffect,
   PlayerWorld,
   Spaceship,
   SpaceshipLayout,

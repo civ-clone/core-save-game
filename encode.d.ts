@@ -14,6 +14,24 @@ export type Ref = {
 export type ClassRef = {
   $class: string;
 };
+/**
+ * A rule held as state, recorded by class.
+ *
+ * `Unit._busy` is the only field in the engine that holds a `Rule` — measured
+ * against a real game: 1,055 registered rules, 4,007 reachable entities, two
+ * fields, both `<Unit>._busy`. A rule is a closure, so it cannot be written
+ * out; what *can* be written is which one it is, because every `Busy` subclass
+ * carries no instance state of its own. Anything that varies — when a delayed
+ * action finishes, what finishing does — lives in a `PendingEffect`, which is
+ * an ordinary saved entity.
+ *
+ * Rebuilt on load by `core-unit`'s `BusyRegistry`, which is why this is a
+ * distinct marker rather than a `$class`: a class reference decodes to the
+ * class, and what a unit needs back is an *instance*, built for it.
+ */
+export type BusyRef = {
+  $busy: string;
+};
 export type EncodedMap = {
   $map: [unknown, unknown][];
 };
@@ -40,6 +58,7 @@ export type DecodeContext = {
   instances: Map<string, DataObject>;
   classes: ClassRegistry;
 };
+export declare const isBusyRef: (value: unknown) => value is BusyRef;
 export declare const decode: (
   value: unknown,
   context: DecodeContext

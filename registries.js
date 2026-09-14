@@ -31,6 +31,10 @@ exports.DISPOSITIONS = {
     playerResearch: 'state',
     playerTradeRates: 'state',
     playerTreasuries: 'state',
+    // What the game owes its entities — a unit part-way through building a road,
+    // a player owed free research. These are the *debts*; the handlers that
+    // discharge them are functions registered at import and are never saved.
+    pendingEffects: 'state',
     playerWorlds: 'state',
     players: 'state',
     spaceships: 'state',

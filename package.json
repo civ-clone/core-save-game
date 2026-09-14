@@ -25,7 +25,10 @@
     "@civ-clone/core-data-object": "^0.1.16",
     "@civ-clone/core-engine": "^0.1.5",
     "@civ-clone/core-game": "^0.1.2",
-    "@civ-clone/core-registry": "^0.1.0"
+    "@civ-clone/core-pending-effect": "^0.1.0",
+    "@civ-clone/core-registry": "^0.1.0",
+    "@civ-clone/core-rule": "^0.1.4",
+    "@civ-clone/core-unit": "^0.1.20"
   },
   "devDependencies": {
     "@types/chai": "^4.3.3",
