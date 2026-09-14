@@ -24,6 +24,7 @@ import FoodStorage from '@civ-clone/core-city-growth/Yields/FoodStorage';
 import GoodyHut from '@civ-clone/core-goody-hut/GoodyHut';
 import Interaction from '@civ-clone/core-diplomacy/Interaction';
 import LandMass from '@civ-clone/core-world/LandMass';
+import Research from '@civ-clone/core-science/Yields/Research';
 import Movement from '@civ-clone/core-unit/Yields/Movement';
 import Moves from '@civ-clone/core-unit/Yields/Moves';
 import Player from '@civ-clone/core-player/Player';
@@ -50,15 +51,13 @@ const CORE_ENTITIES: SaveableClass[] = [
   // why the whole set is here rather than the two that happened to show up in
   // a twelve-turn game.
   //
-  // `core-science/Yields/Research` is deliberately absent. Three classes are
-  // named `Research` — that one, `base-city-yield-research`'s (a
-  // byte-identical `class Research extends Yield {}`) and
-  // `base-trade-rate-research`'s `TradeRate`. Registering it displaces
-  // whichever registered first, which today is the `TradeRate` by way of
-  // `availableTradeRates` — so a save naming `Research` already resolves to
-  // the trade rate rather than the yield. Adding a fourth claimant makes that
-  // worse rather than better; it needs tags, and which of the two identical
-  // `Yield`s is the real one is a modelling question rather than a naming one.
+  // `Research` is here now that the ambiguity is gone. There were three
+  // claimants: this one, `base-city-yield-research`'s byte-identical copy —
+  // which now re-exports this one, because the city's research yield *is* this
+  // quantity — and `base-trade-rate-research`'s, which `extends TradeRate`
+  // rather than `Yield`, is genuinely a different thing, and is tagged
+  // `ResearchTradeRate`. Before that, a save naming `Research` resolved to the
+  // trade rate, because it was the only claimant in a registry.
   Attack,
   Capacity,
   CargoWeight,
@@ -66,6 +65,7 @@ const CORE_ENTITIES: SaveableClass[] = [
   FoodStorage,
   Movement,
   Moves,
+  Research,
   Visibility,
 
   BuildCost,
