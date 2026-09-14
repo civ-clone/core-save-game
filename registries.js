@@ -38,6 +38,10 @@ exports.DISPOSITIONS = {
     playerWorlds: 'state',
     players: 'state',
     spaceships: 'state',
+    // AI working memory, and `GoTo`'s remaining path. It read "empty at turn 8"
+    // for a while, which was true and also the reason nobody noticed that
+    // `StrategyNote` was not a `DataObject` — the slot was dispositioned as
+    // state and wrote nothing at all. It is an entity now.
     strategyNotes: 'state',
     // 1011 Fish/Shield. Reads like a mixed registry and is not: the *definitions*
     // are classes in `availableTerrainFeatures`, and every entry here is a
