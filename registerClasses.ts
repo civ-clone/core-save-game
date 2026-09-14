@@ -9,16 +9,23 @@ import { typeNameOf } from '@civ-clone/core-data-object/DataObject';
 // deliberately absent: a save never names one, only its concrete subclasses,
 // and those come from their own packages.
 import City from '@civ-clone/core-city/City';
+import Attack from '@civ-clone/core-unit/Yields/Attack';
 import BuildCost from '@civ-clone/core-city-build/BuildCost';
 import BuildItem from '@civ-clone/core-city-build/BuildItem';
 import BuildProgress from '@civ-clone/core-city-build/Yields/BuildProgress';
 import CityBuild from '@civ-clone/core-city-build/CityBuild';
+import Capacity from '@civ-clone/core-unit-transport/Yields/Capacity';
+import CargoWeight from '@civ-clone/core-unit-transport/Yields/CargoWeight';
 import CityGrowth from '@civ-clone/core-city-growth/CityGrowth';
 import Civilization from '@civ-clone/core-civilization/Civilization';
+import Defence from '@civ-clone/core-unit/Yields/Defence';
 import Expiry from '@civ-clone/core-diplomacy/Expiry';
+import FoodStorage from '@civ-clone/core-city-growth/Yields/FoodStorage';
 import GoodyHut from '@civ-clone/core-goody-hut/GoodyHut';
 import Interaction from '@civ-clone/core-diplomacy/Interaction';
 import LandMass from '@civ-clone/core-world/LandMass';
+import Movement from '@civ-clone/core-unit/Yields/Movement';
+import Moves from '@civ-clone/core-unit/Yields/Moves';
 import Player from '@civ-clone/core-player/Player';
 import PlayerGovernment from '@civ-clone/core-government/PlayerGovernment';
 import PlayerResearch from '@civ-clone/core-science/PlayerResearch';
@@ -32,10 +39,35 @@ import SpaceshipPart from '@civ-clone/core-spaceship/Part';
 import SpaceshipSlot from '@civ-clone/core-spaceship/Slot';
 import StrategyNote from '@civ-clone/core-strategy/StrategyNote';
 import Tile from '@civ-clone/core-world/Tile';
+import Visibility from '@civ-clone/core-unit/Yields/Visibility';
 import WorkedTile from '@civ-clone/core-city/WorkedTile';
 import World from '@civ-clone/core-world/World';
 
 const CORE_ENTITIES: SaveableClass[] = [
+  // `Yield` subclasses are constructed directly and appear in no registry, so
+  // every `core-` one has to be named. `Moves` and `FoodStorage` were found
+  // missing by the acceptance test rather than by reading the tree, which is
+  // why the whole set is here rather than the two that happened to show up in
+  // a twelve-turn game.
+  //
+  // `core-science/Yields/Research` is deliberately absent. Three classes are
+  // named `Research` — that one, `base-city-yield-research`'s (a
+  // byte-identical `class Research extends Yield {}`) and
+  // `base-trade-rate-research`'s `TradeRate`. Registering it displaces
+  // whichever registered first, which today is the `TradeRate` by way of
+  // `availableTradeRates` — so a save naming `Research` already resolves to
+  // the trade rate rather than the yield. Adding a fourth claimant makes that
+  // worse rather than better; it needs tags, and which of the two identical
+  // `Yield`s is the real one is a modelling question rather than a naming one.
+  Attack,
+  Capacity,
+  CargoWeight,
+  Defence,
+  FoodStorage,
+  Movement,
+  Moves,
+  Visibility,
+
   BuildCost,
   BuildItem,
   BuildProgress,

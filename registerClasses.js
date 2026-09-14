@@ -9,16 +9,23 @@ const DataObject_1 = require("@civ-clone/core-data-object/DataObject");
 // deliberately absent: a save never names one, only its concrete subclasses,
 // and those come from their own packages.
 const City_1 = require("@civ-clone/core-city/City");
+const Attack_1 = require("@civ-clone/core-unit/Yields/Attack");
 const BuildCost_1 = require("@civ-clone/core-city-build/BuildCost");
 const BuildItem_1 = require("@civ-clone/core-city-build/BuildItem");
 const BuildProgress_1 = require("@civ-clone/core-city-build/Yields/BuildProgress");
 const CityBuild_1 = require("@civ-clone/core-city-build/CityBuild");
+const Capacity_1 = require("@civ-clone/core-unit-transport/Yields/Capacity");
+const CargoWeight_1 = require("@civ-clone/core-unit-transport/Yields/CargoWeight");
 const CityGrowth_1 = require("@civ-clone/core-city-growth/CityGrowth");
 const Civilization_1 = require("@civ-clone/core-civilization/Civilization");
+const Defence_1 = require("@civ-clone/core-unit/Yields/Defence");
 const Expiry_1 = require("@civ-clone/core-diplomacy/Expiry");
+const FoodStorage_1 = require("@civ-clone/core-city-growth/Yields/FoodStorage");
 const GoodyHut_1 = require("@civ-clone/core-goody-hut/GoodyHut");
 const Interaction_1 = require("@civ-clone/core-diplomacy/Interaction");
 const LandMass_1 = require("@civ-clone/core-world/LandMass");
+const Movement_1 = require("@civ-clone/core-unit/Yields/Movement");
+const Moves_1 = require("@civ-clone/core-unit/Yields/Moves");
 const Player_1 = require("@civ-clone/core-player/Player");
 const PlayerGovernment_1 = require("@civ-clone/core-government/PlayerGovernment");
 const PlayerResearch_1 = require("@civ-clone/core-science/PlayerResearch");
@@ -32,9 +39,33 @@ const Part_1 = require("@civ-clone/core-spaceship/Part");
 const Slot_1 = require("@civ-clone/core-spaceship/Slot");
 const StrategyNote_1 = require("@civ-clone/core-strategy/StrategyNote");
 const Tile_1 = require("@civ-clone/core-world/Tile");
+const Visibility_1 = require("@civ-clone/core-unit/Yields/Visibility");
 const WorkedTile_1 = require("@civ-clone/core-city/WorkedTile");
 const World_1 = require("@civ-clone/core-world/World");
 const CORE_ENTITIES = [
+    // `Yield` subclasses are constructed directly and appear in no registry, so
+    // every `core-` one has to be named. `Moves` and `FoodStorage` were found
+    // missing by the acceptance test rather than by reading the tree, which is
+    // why the whole set is here rather than the two that happened to show up in
+    // a twelve-turn game.
+    //
+    // `core-science/Yields/Research` is deliberately absent. Three classes are
+    // named `Research` — that one, `base-city-yield-research`'s (a
+    // byte-identical `class Research extends Yield {}`) and
+    // `base-trade-rate-research`'s `TradeRate`. Registering it displaces
+    // whichever registered first, which today is the `TradeRate` by way of
+    // `availableTradeRates` — so a save naming `Research` already resolves to
+    // the trade rate rather than the yield. Adding a fourth claimant makes that
+    // worse rather than better; it needs tags, and which of the two identical
+    // `Yield`s is the real one is a modelling question rather than a naming one.
+    Attack_1.default,
+    Capacity_1.default,
+    CargoWeight_1.default,
+    Defence_1.default,
+    FoodStorage_1.default,
+    Movement_1.default,
+    Moves_1.default,
+    Visibility_1.default,
     BuildCost_1.default,
     BuildItem_1.default,
     BuildProgress_1.default,
