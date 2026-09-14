@@ -64,7 +64,10 @@ const serialise = (
   const state: { [field: string]: unknown } = {};
 
   entity.stateKeys().forEach((field) => {
-    state[field] = encode(record[field], { onEntity: discover });
+    state[field] = encode(record[field], {
+      onEntity: discover,
+      path: `${typeNameOf(entity.sourceClass<typeof DataObject>())}.${field}`,
+    });
   });
 
   return {

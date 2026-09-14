@@ -44,7 +44,15 @@ export type EncodeOptions = {
    * dangling as a `$ref` to nothing.
    */
   onEntity?: (entity: DataObject) => void;
+
+  /** Field path, for the error message when something cannot be encoded. */
+  path?: string;
 };
+
+const at = (options: EncodeOptions, step: string): EncodeOptions => ({
+  ...options,
+  path: options.path ? `${options.path}.${step}` : step,
+});
 
 export const encode = (
   value: unknown,
@@ -61,27 +69,48 @@ export const encode = (
   }
 
   if (typeof value === 'function') {
-    return {
-      $class: typeNameOf(value as unknown as { name: string }),
-    } as ClassRef;
+    const name = typeNameOf(value as unknown as { name: string });
+
+    if (name === '') {
+      // An anonymous function has no identity to record, so `{ $class: '' }`
+      // could never be decoded — it would fail on load, in someone else's
+      // session, with no clue where it came from.
+      //
+      // In practice this is reached one way: a field holding a `Rule`, whose
+      // `Effect` holds the closure the rule was built from. `Unit._busy` is
+      // the case — `05-engine-plan.md` predicted it, and it is what Stage 6's
+      // rule identities are for. Refusing is deliberate: the alternative is a
+      // save that loads with every fortified unit silently un-fortified.
+      throw new SaveError(
+        `Cannot encode ${options.path ?? '(unknown field)'}: it holds a ` +
+          'function with no name, so there is nothing to record that could ' +
+          'be resolved on load. A field holding a `Rule` reaches this, ' +
+          'because a rule is a closure — it needs a rule identity, which is ' +
+          'Stage 6 of the engine plan.'
+      );
+    }
+
+    return { $class: name } as ClassRef;
   }
 
   if (Array.isArray(value)) {
-    return value.map((item) => encode(item, options));
+    return value.map((item, index) => encode(item, at(options, `[${index}]`)));
   }
 
   if (value instanceof Map) {
     return {
       $map: [...value.entries()].map(([key, item]) => [
-        encode(key, options),
-        encode(item, options),
+        encode(key, at(options, '<key>')),
+        encode(item, at(options, '<value>')),
       ]),
     } as EncodedMap;
   }
 
   if (value instanceof Set) {
     return {
-      $set: [...value].map((item) => encode(item, options)),
+      $set: [...value].map((item, index) =>
+        encode(item, at(options, `[${index}]`))
+      ),
     } as EncodedSet;
   }
 
@@ -89,14 +118,16 @@ export const encode = (
     // As an array of encoded members. A registry field is a container, and its
     // identity is its membership in order — `World._tiles` is the case that
     // matters, and its members are entities, so this becomes a list of `$ref`s.
-    return value.entries().map((item) => encode(item, options));
+    return value
+      .entries()
+      .map((item, index) => encode(item, at(options, `[${index}]`)));
   }
 
   if (typeof value === 'object') {
     return Object.fromEntries(
       Object.entries(value as object).map(([key, item]) => [
         key,
-        encode(item, options),
+        encode(item, at(options, key)),
       ])
     );
   }

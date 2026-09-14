@@ -18,8 +18,12 @@ const isRegistry = (value) => typeof value === 'object' &&
     value !== null &&
     typeof value.entries === 'function' &&
     !Array.isArray(value);
+const at = (options, step) => ({
+    ...options,
+    path: options.path ? `${options.path}.${step}` : step,
+});
 const encode = (value, options = {}) => {
-    var _a;
+    var _a, _b;
     if (value === null || value === undefined) {
         return null;
     }
@@ -28,36 +32,53 @@ const encode = (value, options = {}) => {
         return { $ref: value.id() };
     }
     if (typeof value === 'function') {
-        return {
-            $class: (0, DataObject_1.typeNameOf)(value),
-        };
+        const name = (0, DataObject_1.typeNameOf)(value);
+        if (name === '') {
+            // An anonymous function has no identity to record, so `{ $class: '' }`
+            // could never be decoded — it would fail on load, in someone else's
+            // session, with no clue where it came from.
+            //
+            // In practice this is reached one way: a field holding a `Rule`, whose
+            // `Effect` holds the closure the rule was built from. `Unit._busy` is
+            // the case — `05-engine-plan.md` predicted it, and it is what Stage 6's
+            // rule identities are for. Refusing is deliberate: the alternative is a
+            // save that loads with every fortified unit silently un-fortified.
+            throw new SaveGame_1.SaveError(`Cannot encode ${(_b = options.path) !== null && _b !== void 0 ? _b : '(unknown field)'}: it holds a ` +
+                'function with no name, so there is nothing to record that could ' +
+                'be resolved on load. A field holding a `Rule` reaches this, ' +
+                'because a rule is a closure — it needs a rule identity, which is ' +
+                'Stage 6 of the engine plan.');
+        }
+        return { $class: name };
     }
     if (Array.isArray(value)) {
-        return value.map((item) => (0, exports.encode)(item, options));
+        return value.map((item, index) => (0, exports.encode)(item, at(options, `[${index}]`)));
     }
     if (value instanceof Map) {
         return {
             $map: [...value.entries()].map(([key, item]) => [
-                (0, exports.encode)(key, options),
-                (0, exports.encode)(item, options),
+                (0, exports.encode)(key, at(options, '<key>')),
+                (0, exports.encode)(item, at(options, '<value>')),
             ]),
         };
     }
     if (value instanceof Set) {
         return {
-            $set: [...value].map((item) => (0, exports.encode)(item, options)),
+            $set: [...value].map((item, index) => (0, exports.encode)(item, at(options, `[${index}]`))),
         };
     }
     if (isRegistry(value)) {
         // As an array of encoded members. A registry field is a container, and its
         // identity is its membership in order — `World._tiles` is the case that
         // matters, and its members are entities, so this becomes a list of `$ref`s.
-        return value.entries().map((item) => (0, exports.encode)(item, options));
+        return value
+            .entries()
+            .map((item, index) => (0, exports.encode)(item, at(options, `[${index}]`)));
     }
     if (typeof value === 'object') {
         return Object.fromEntries(Object.entries(value).map(([key, item]) => [
             key,
-            (0, exports.encode)(item, options),
+            (0, exports.encode)(item, at(options, key)),
         ]));
     }
     // Primitives, which includes `bigint` — and `JSON.stringify` throws on one

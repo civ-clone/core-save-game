@@ -83,7 +83,12 @@ export const DISPOSITIONS: Record<keyof GameSlots, Disposition> = {
   availableCityBuildItems: 'classes', // 76
   availableGovernments: 'classes', // 5
   availableTerrainFeatures: 'classes', // 10
+  // Added so a save can resolve `Irrigation`, `Road` and `Fortified` by name.
+  // `tileImprovements` and `unitImprovements` hold the *built* instances; these
+  // hold the classes a ruleset offers, and nothing held them before.
+  availableTileImprovements: 'classes', // 5
   availableTradeRates: 'classes', // 3
+  availableUnitImprovements: 'classes', // 2
   civilizations: 'classes', // 10 — see `reclaim`
   generators: 'classes', // 1 BaseGenerator
   layouts: 'classes', // 1 Default

@@ -62,7 +62,12 @@ exports.DISPOSITIONS = {
     availableCityBuildItems: 'classes',
     availableGovernments: 'classes',
     availableTerrainFeatures: 'classes',
+    // Added so a save can resolve `Irrigation`, `Road` and `Fortified` by name.
+    // `tileImprovements` and `unitImprovements` hold the *built* instances; these
+    // hold the classes a ruleset offers, and nothing held them before.
+    availableTileImprovements: 'classes',
     availableTradeRates: 'classes',
+    availableUnitImprovements: 'classes',
     civilizations: 'classes',
     generators: 'classes',
     layouts: 'classes',

@@ -28,6 +28,8 @@ export type EncodeOptions = {
    * dangling as a `$ref` to nothing.
    */
   onEntity?: (entity: DataObject) => void;
+  /** Field path, for the error message when something cannot be encoded. */
+  path?: string;
 };
 export declare const encode: (
   value: unknown,
