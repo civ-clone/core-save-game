@@ -44,16 +44,15 @@ const encode = (value, options = {}) => {
             // could never be decoded — it would fail on load, in someone else's
             // session, with no clue where it came from.
             //
-            // In practice this is reached one way: a field holding a `Rule`, whose
-            // `Effect` holds the closure the rule was built from. `Unit._busy` is
-            // the case — `05-engine-plan.md` predicted it, and it is what Stage 6's
-            // rule identities are for. Refusing is deliberate: the alternative is a
-            // save that loads with every fortified unit silently un-fortified.
+            // A `Rule` no longer reaches here — it is caught above and written as
+            // `$busy`, its identity, which `BusyRegistry` rebuilds on load. What
+            // does reach here is a closure held directly in a field, which has no
+            // identity at all. Refusing is deliberate: the alternative is a save
+            // that loads with the behaviour silently missing.
             throw new SaveGame_1.SaveError(`Cannot encode ${(_b = options.path) !== null && _b !== void 0 ? _b : '(unknown field)'}: it holds a ` +
                 'function with no name, so there is nothing to record that could ' +
-                'be resolved on load. A field holding a `Rule` reaches this, ' +
-                'because a rule is a closure — it needs a rule identity, which is ' +
-                'Stage 6 of the engine plan.');
+                'be resolved on load. Keep behaviour in code and save what it ' +
+                'needs — a `PendingEffect` names its handler for exactly this reason.');
         }
         return { $class: name };
     }
