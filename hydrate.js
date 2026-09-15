@@ -50,15 +50,6 @@ exports.assertCompatible = assertCompatible;
  */
 const hydrate = (save, game) => {
     (0, exports.assertCompatible)(save, game);
-    if (save.pendingEffects.length > 0) {
-        // Refusing rather than dropping. A pending effect is a queued continuation
-        // — Darwin's Voyage registers one — and discarding it silently would lose
-        // the effect with no symptom until a player noticed they never got it.
-        // Restoring one needs rule identity, which is Stage 6 of the engine plan.
-        throw new SaveGame_1.SaveError(`This save carries ${save.pendingEffects.length} pending effect(s), ` +
-            'which cannot be restored until rules have identities. Refusing ' +
-            'rather than dropping them.');
-    }
     // Before anything is allocated, or the first entity created after the load
     // takes an id a loaded entity already holds.
     (0, DataObject_1.restoreIdCounters)(save.idCounters);

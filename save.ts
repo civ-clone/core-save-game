@@ -194,7 +194,6 @@ export const save = (game: Game, options: SaveOptions = {}): SaveGame => {
         module: client.constructor.name,
       };
     }),
-    pendingEffects: [],
   };
 };
 

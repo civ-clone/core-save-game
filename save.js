@@ -151,7 +151,6 @@ const save = (game, options = {}) => {
                 module: client.constructor.name,
             };
         }),
-        pendingEffects: [],
     };
 };
 exports.save = save;

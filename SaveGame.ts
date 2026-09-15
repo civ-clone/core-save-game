@@ -44,8 +44,12 @@ export type SaveGame = {
   /** Descriptors, never the client objects — see `save.ts`. */
   clients: { playerId: string; kind: 'human' | 'ai'; module: string }[];
 
-  /** Serialisable continuations. Must be empty until Stage 6 — see `hydrate`. */
-  pendingEffects: { handler: string; data: { [key: string]: string } }[];
+  // No `pendingEffects` field. Format 1 was written with one — always empty,
+  // and `hydrate` refused anything else — as a placeholder until effects had a
+  // saveable shape. They do now, and it is the ordinary one: a `PendingEffect`
+  // is a `DataObject` in the `pendingEffects` registry slot, so it travels in
+  // `entities` and `registries` like everything else. Older files still carry
+  // `"pendingEffects": []`, which nothing reads.
 };
 
 export type SerialisedEntity = {

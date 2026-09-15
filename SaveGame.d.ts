@@ -46,13 +46,6 @@ export type SaveGame = {
     kind: 'human' | 'ai';
     module: string;
   }[];
-  /** Serialisable continuations. Must be empty until Stage 6 — see `hydrate`. */
-  pendingEffects: {
-    handler: string;
-    data: {
-      [key: string]: string;
-    };
-  }[];
 };
 export type SerialisedEntity = {
   id: string;
