@@ -52,6 +52,12 @@ const hydrate = (save, game) => {
     (0, exports.assertCompatible)(save, game);
     // Before anything is allocated, or the first entity created after the load
     // takes an id a loaded entity already holds.
+    // The turn, before anything can read it. It is recorded in the file's
+    // metadata rather than as an entity — nothing references a `Turn` — so
+    // without this a loaded game resumes at turn 0 with a turn-40 world. In one
+    // process that went unnoticed: the loaded game adopted the same `Turn`
+    // object the saved one had been counting. The year follows from the turn.
+    game.turn.set(save.meta.turn);
     (0, DataObject_1.restoreIdCounters)(save.idCounters);
     game.rng.restore(save.rng.seed, save.rng.calls);
     const instances = new Map();
@@ -75,31 +81,14 @@ const hydrate = (save, game) => {
             _keys: [...keys],
         });
     });
-    // Pass 2b — rebuild the rules a unit was holding.
-    //
-    // Separate from the fill above because rebuilding one needs the entity that
-    // holds it: `decode` walks a field's value with no idea whose field it is,
-    // so it leaves the marker alone and this resolves it with the owner in hand.
-    //
-    // The rule itself is not restored — it is *rebuilt*, by the package that owns
-    // it, from the entity and whatever `PendingEffect` says about it. A delayed
-    // action's completion turn comes from that effect, which is why the order
-    // matters: the effects are filled by the loop above, so they are readable by
-    // the time a factory asks.
-    instances.forEach((entity) => {
-        const record = entity;
-        Object.keys(record).forEach((field) => {
-            const value = record[field];
-            if ((0, encode_1.isBusyRef)(value)) {
-                record[field] = BusyRegistry_1.instance.rebuild(value.$busy, entity);
-            }
-        });
-    });
     // Pass 3 — re-attach the collaborators and caches a file cannot carry, and
     // run any `onHydrated` hook. `inject` throws if it leaves a transient field
     // undefined, so a class this does not know about fails the load rather than
     // returning `undefined` from an accessor.
-    instances.forEach((entity) => game.inject(entity));
+    // All of them together: a hook may read any other entity — `City` recomputes
+    // its fat cross from the world — so filling, hooks and the transient-field
+    // assertion are three sweeps rather than one pass per entity.
+    game.injectAll(instances.values());
     // Pass 4 — registry membership, in saved order. `EntityRegistry.register`
     // dedupes by identity, so a definition registry that plugin imports already
     // filled does not double up.
@@ -119,7 +108,30 @@ const hydrate = (save, game) => {
             return entity;
         }));
     });
-    // Pass 5 — re-apply the claims players hold on constructor registries.
+    // Pass 5 — rebuild the rules a unit was holding.
+    //
+    // Separate from the fill because rebuilding one needs the entity that holds
+    // it: `decode` walks a field's value with no idea whose field it is, so it
+    // leaves the marker alone and this resolves it with the owner in hand.
+    //
+    // The rule itself is not restored — it is *rebuilt*, by the package that
+    // owns it, from the entity and whatever `PendingEffect` says about it. **And
+    // that is why it runs here, after registry membership rather than before
+    // it.** A delayed action's factory asks `pendingEffects.getByTarget(unit)`
+    // for the effect carrying its completion turn, and a registry nothing has
+    // been registered into yet answers with nothing: a unit saved part-way
+    // through fortifying failed to load, naming an effect the file did in fact
+    // contain. Filling the objects is not enough; they have to be *findable*.
+    instances.forEach((entity) => {
+        const record = entity;
+        Object.keys(record).forEach((field) => {
+            const value = record[field];
+            if ((0, encode_1.isBusyRef)(value)) {
+                record[field] = BusyRegistry_1.instance.rebuild(value.$busy, entity);
+            }
+        });
+    });
+    // Pass 6 — re-apply the claims players hold on constructor registries.
     reclaim(save, game, instances);
     game.engine.emit('save:loaded', save.meta);
 };
