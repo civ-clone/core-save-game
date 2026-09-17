@@ -39,11 +39,12 @@ const assertDispositions = (game) => {
             "'context' in registries.ts. Saving would skip them silently.");
     }
 };
-const serialise = (entity, discover) => {
+const serialise = (entity, discover, classes) => {
     const record = entity;
     const state = {};
     entity.stateKeys().forEach((field) => {
         state[field] = (0, encode_1.encode)(record[field], {
+            classes,
             onEntity: discover,
             path: `${(0, DataObject_1.typeNameOf)(entity.sourceClass())}.${field}`,
         });
@@ -110,7 +111,7 @@ const save = (game, options = {}) => {
         if (entities.has(entity.id())) {
             continue;
         }
-        entities.set(entity.id(), serialise(entity, discover));
+        entities.set(entity.id(), serialise(entity, discover, game.classes));
     }
     return {
         format: SaveGame_1.FORMAT,

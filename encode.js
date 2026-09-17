@@ -24,7 +24,7 @@ const at = (options, step) => ({
     path: options.path ? `${options.path}.${step}` : step,
 });
 const encode = (value, options = {}) => {
-    var _a, _b;
+    var _a, _b, _c;
     if (value === null || value === undefined) {
         return null;
     }
@@ -53,6 +53,16 @@ const encode = (value, options = {}) => {
                 'function with no name, so there is nothing to record that could ' +
                 'be resolved on load. Keep behaviour in code and save what it ' +
                 'needs — a `PendingEffect` names its handler for exactly this reason.');
+        }
+        if (options.classes) {
+            const resolved = options.classes.get(name);
+            if (resolved !== value) {
+                throw new SaveGame_1.SaveError(`Cannot encode ${(_c = options.path) !== null && _c !== void 0 ? _c : '(unknown field)'}: it holds the ` +
+                    `class '${name}', and that name belongs to ` +
+                    `${resolved ? 'a different class' : 'no registered class'} — so ` +
+                    'loading this save would hand back the wrong one, or nothing. ' +
+                    'Give the colliding classes an explicit `static type`.');
+            }
         }
         return { $class: name };
     }

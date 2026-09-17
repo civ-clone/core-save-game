@@ -19,7 +19,13 @@ const BusyRegistry_1 = require("@civ-clone/core-unit/BusyRegistry");
  */
 const assertCompatible = (save, game) => {
     if (save.format !== SaveGame_1.FORMAT) {
-        throw new SaveGame_1.SaveError(`Unsupported save format ${save.format}; this engine reads ${SaveGame_1.FORMAT}.`);
+        throw new SaveGame_1.SaveError(`Unsupported save format ${save.format}; this engine reads ${SaveGame_1.FORMAT}.` +
+            (save.format === 1
+                ? ' Format 1 saves record an ambiguous class reference for a ' +
+                    "player's treasury — they load without error and then apply no " +
+                    'production, food or trade — so they are refused rather than ' +
+                    'played. See SaveGame.ts.'
+                : ''));
     }
     const loaded = game.engine.plugins();
     if (Object.keys(loaded).length === 0) {

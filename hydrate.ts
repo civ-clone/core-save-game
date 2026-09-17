@@ -22,7 +22,13 @@ import { instance as busyRegistryInstance } from '@civ-clone/core-unit/BusyRegis
 export const assertCompatible = (save: SaveGame, game: Game): void => {
   if (save.format !== FORMAT) {
     throw new SaveError(
-      `Unsupported save format ${save.format}; this engine reads ${FORMAT}.`
+      `Unsupported save format ${save.format}; this engine reads ${FORMAT}.` +
+        (save.format === 1
+          ? ' Format 1 saves record an ambiguous class reference for a ' +
+            "player's treasury — they load without error and then apply no " +
+            'production, food or trade — so they are refused rather than ' +
+            'played. See SaveGame.ts.'
+          : '')
     );
   }
 

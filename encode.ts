@@ -63,6 +63,23 @@ export type EncodeOptions = {
    */
   onEntity?: (entity: DataObject) => void;
 
+  /**
+   * The registry a load will resolve `$class` against.
+   *
+   * Given one, a class reference is checked to *come back as itself*. A save
+   * records a class by name, and three packages in this estate declare a class
+   * called `Gold` — a city yield, a goody hut and a terrain feature. Only one
+   * can own the name, so `PlayerTreasury._yield` was written as
+   * `{ $class: 'Gold' }` and read back as somebody else's `Gold`. Nothing
+   * failed at load: `getByPlayerAndType` simply found no treasury, threw inside
+   * `ProcessYield`, and the whole yield chain died — so a loaded game applied
+   * no production, no food and no trade, with no hint as to why.
+   *
+   * Checked here, at the point where the name is written and the real class is
+   * still in hand, because it is the last point at which anything can tell.
+   */
+  classes?: { get(name: string): unknown };
+
   /** Field path, for the error message when something cannot be encoded. */
   path?: string;
 };
@@ -113,6 +130,20 @@ export const encode = (
           'be resolved on load. Keep behaviour in code and save what it ' +
           'needs — a `PendingEffect` names its handler for exactly this reason.'
       );
+    }
+
+    if (options.classes) {
+      const resolved = options.classes.get(name);
+
+      if (resolved !== value) {
+        throw new SaveError(
+          `Cannot encode ${options.path ?? '(unknown field)'}: it holds the ` +
+            `class '${name}', and that name belongs to ` +
+            `${resolved ? 'a different class' : 'no registered class'} — so ` +
+            'loading this save would hand back the wrong one, or nothing. ' +
+            'Give the colliding classes an explicit `static type`.'
+        );
+      }
     }
 
     return { $class: name } as ClassRef;

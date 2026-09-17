@@ -58,13 +58,15 @@ const assertDispositions = (game: Game): void => {
 
 const serialise = (
   entity: DataObject,
-  discover: (found: DataObject) => void
+  discover: (found: DataObject) => void,
+  classes?: { get(name: string): unknown }
 ): SerialisedEntity => {
   const record = entity as unknown as Record<string, unknown>;
   const state: { [field: string]: unknown } = {};
 
   entity.stateKeys().forEach((field) => {
     state[field] = encode(record[field], {
+      classes,
       onEntity: discover,
       path: `${typeNameOf(entity.sourceClass<typeof DataObject>())}.${field}`,
     });
@@ -150,7 +152,7 @@ export const save = (game: Game, options: SaveOptions = {}): SaveGame => {
       continue;
     }
 
-    entities.set(entity.id(), serialise(entity, discover));
+    entities.set(entity.id(), serialise(entity, discover, game.classes));
   }
 
   return {

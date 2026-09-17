@@ -1,12 +1,20 @@
 /**
  * The save format, from `03-save-format.md`.
  *
+ * **Format 2.** Format 1 wrote `PlayerTreasury._yield` as `{ $class: 'Gold' }`,
+ * and three packages declare a class called `Gold`. Such a save loads without
+ * error and applies no production, food or trade, because the treasury lookup
+ * finds nothing and throws inside `ProcessYield`. There is no way to tell from
+ * the file which `Gold` was meant, so format 1 files are refused rather than
+ * loaded into a game that quietly does not work. `encode` now checks that a
+ * class reference resolves back to itself, so this cannot recur silently.
+ *
  * `format` is a single integer rather than a semver string on purpose: it gates
  * whether this code can read the file at all, and the engine's 328 package
  * versions answer the finer-grained question separately in `engine.plugins`.
  */
 export type SaveGame = {
-  format: 1;
+  format: 2;
   engine: {
     /** Every loaded package at save time, name → exact version. */
     plugins: {

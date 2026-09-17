@@ -4,5 +4,5 @@ exports.FORMAT = exports.SaveError = void 0;
 class SaveError extends Error {
 }
 exports.SaveError = SaveError;
-exports.FORMAT = 1;
+exports.FORMAT = 2;
 //# sourceMappingURL=SaveGame.js.map
