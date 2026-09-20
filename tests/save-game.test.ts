@@ -92,11 +92,9 @@ describe('encode', (): void => {
   });
 
   it('should refuse a nameless function, naming the field it was found in', (): void => {
-    // Built so the engine cannot infer a name — `{ handler: () => {} }.handler`
-    // is *not* anonymous: the property key names it `handler`, and it would be
-    // written as `{ $class: 'handler' }`, failing only on load. That gap is
-    // real; closing it means checking every `$class` against the class
-    // registry at save time.
+    // Built so the engine cannot infer a name: `[(): void => {}][0]` is one of
+    // the few ways to get a genuinely anonymous function, since almost every
+    // other position — assignment, a property, an argument default — names it.
     const nameless = [(): void => {}][0];
 
     expect(nameless.name).to.equal('');
@@ -104,6 +102,24 @@ describe('encode', (): void => {
       SaveError,
       /City\._handler/
     );
+  });
+
+  it('should refuse a named closure, which is the case that used to load wrong', (): void => {
+    // The dangerous one, and the reason the class check exists. This closure
+    // is *not* anonymous — the property key names it `handler` — so it used to
+    // sail through `encode` as `{ $class: 'handler' }` and fail on **load**,
+    // in someone else's session, with "unknown entity type".
+    //
+    // What catches it is the check that a name resolves back to the very class
+    // it was read from. `handler` resolves to nothing, so it is not a class.
+    // `save` always passes the registry, so this holds for every real save and
+    // not only for a call that opts in.
+    const named = { handler: (): void => {} }.handler;
+
+    expect(named.name).to.equal('handler');
+    expect(() =>
+      encode(named, { classes: new Game().classes, path: 'City._handler' })
+    ).to.throw(SaveError, /no registered class/);
   });
 
   it('should write a registry field as an array of its members', (): void => {
