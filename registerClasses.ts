@@ -18,15 +18,24 @@ import Capacity from '@civ-clone/core-unit-transport/Yields/Capacity';
 import CargoWeight from '@civ-clone/core-unit-transport/Yields/CargoWeight';
 import CityGrowth from '@civ-clone/core-city-growth/CityGrowth';
 import Civilization from '@civ-clone/core-civilization/Civilization';
+import Abstain from '@civ-clone/core-diplomacy/Proposal/Abstain';
+import Accept from '@civ-clone/core-diplomacy/Proposal/Accept';
+import Acknowledge from '@civ-clone/core-diplomacy/Proposal/Acknowledge';
+import Declaration from '@civ-clone/core-diplomacy/Declaration';
+import Decline from '@civ-clone/core-diplomacy/Proposal/Decline';
 import Defence from '@civ-clone/core-unit/Yields/Defence';
+import Dialogue from '@civ-clone/core-diplomacy/Negotiation/Dialogue';
 import Expiry from '@civ-clone/core-diplomacy/Expiry';
 import FoodStorage from '@civ-clone/core-city-growth/Yields/FoodStorage';
 import GoodyHut from '@civ-clone/core-goody-hut/GoodyHut';
+import Initiate from '@civ-clone/core-diplomacy/Negotiation/Initiate';
 import Interaction from '@civ-clone/core-diplomacy/Interaction';
 import LandMass from '@civ-clone/core-world/LandMass';
 import Research from '@civ-clone/core-science/Yields/Research';
 import Movement from '@civ-clone/core-unit/Yields/Movement';
 import Moves from '@civ-clone/core-unit/Yields/Moves';
+import Negotiation from '@civ-clone/core-diplomacy/Negotiation';
+import Never from '@civ-clone/core-diplomacy/Expiries/Never';
 import Player from '@civ-clone/core-player/Player';
 import PlayerGovernment from '@civ-clone/core-government/PlayerGovernment';
 import PlayerResearch from '@civ-clone/core-science/PlayerResearch';
@@ -40,6 +49,7 @@ import SpaceshipLayout from '@civ-clone/core-spaceship/Layout';
 import SpaceshipPart from '@civ-clone/core-spaceship/Part';
 import SpaceshipSlot from '@civ-clone/core-spaceship/Slot';
 import StrategyNote from '@civ-clone/core-strategy/StrategyNote';
+import Terminate from '@civ-clone/core-diplomacy/Negotiation/Terminate';
 import Tile from '@civ-clone/core-world/Tile';
 import Visibility from '@civ-clone/core-unit/Yields/Visibility';
 import WorkedTile from '@civ-clone/core-city/WorkedTile';
@@ -68,6 +78,20 @@ const CORE_ENTITIES: SaveableClass[] = [
   Moves,
   Research,
   Visibility,
+
+  // `core-diplomacy`'s concrete classes. A save names them as soon as two
+  // players meet, and before these were here every such save failed to load.
+  // `Contact`, `Peace`, `War` and the proposals live in `civ1-diplomacy`.
+  Abstain,
+  Accept,
+  Acknowledge,
+  Declaration,
+  Decline,
+  Dialogue,
+  Initiate,
+  Negotiation,
+  Never,
+  Terminate,
 
   BuildCost,
   BuildItem,

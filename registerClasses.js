@@ -18,15 +18,24 @@ const Capacity_1 = require("@civ-clone/core-unit-transport/Yields/Capacity");
 const CargoWeight_1 = require("@civ-clone/core-unit-transport/Yields/CargoWeight");
 const CityGrowth_1 = require("@civ-clone/core-city-growth/CityGrowth");
 const Civilization_1 = require("@civ-clone/core-civilization/Civilization");
+const Abstain_1 = require("@civ-clone/core-diplomacy/Proposal/Abstain");
+const Accept_1 = require("@civ-clone/core-diplomacy/Proposal/Accept");
+const Acknowledge_1 = require("@civ-clone/core-diplomacy/Proposal/Acknowledge");
+const Declaration_1 = require("@civ-clone/core-diplomacy/Declaration");
+const Decline_1 = require("@civ-clone/core-diplomacy/Proposal/Decline");
 const Defence_1 = require("@civ-clone/core-unit/Yields/Defence");
+const Dialogue_1 = require("@civ-clone/core-diplomacy/Negotiation/Dialogue");
 const Expiry_1 = require("@civ-clone/core-diplomacy/Expiry");
 const FoodStorage_1 = require("@civ-clone/core-city-growth/Yields/FoodStorage");
 const GoodyHut_1 = require("@civ-clone/core-goody-hut/GoodyHut");
+const Initiate_1 = require("@civ-clone/core-diplomacy/Negotiation/Initiate");
 const Interaction_1 = require("@civ-clone/core-diplomacy/Interaction");
 const LandMass_1 = require("@civ-clone/core-world/LandMass");
 const Research_1 = require("@civ-clone/core-science/Yields/Research");
 const Movement_1 = require("@civ-clone/core-unit/Yields/Movement");
 const Moves_1 = require("@civ-clone/core-unit/Yields/Moves");
+const Negotiation_1 = require("@civ-clone/core-diplomacy/Negotiation");
+const Never_1 = require("@civ-clone/core-diplomacy/Expiries/Never");
 const Player_1 = require("@civ-clone/core-player/Player");
 const PlayerGovernment_1 = require("@civ-clone/core-government/PlayerGovernment");
 const PlayerResearch_1 = require("@civ-clone/core-science/PlayerResearch");
@@ -40,6 +49,7 @@ const Layout_1 = require("@civ-clone/core-spaceship/Layout");
 const Part_1 = require("@civ-clone/core-spaceship/Part");
 const Slot_1 = require("@civ-clone/core-spaceship/Slot");
 const StrategyNote_1 = require("@civ-clone/core-strategy/StrategyNote");
+const Terminate_1 = require("@civ-clone/core-diplomacy/Negotiation/Terminate");
 const Tile_1 = require("@civ-clone/core-world/Tile");
 const Visibility_1 = require("@civ-clone/core-unit/Yields/Visibility");
 const WorkedTile_1 = require("@civ-clone/core-city/WorkedTile");
@@ -67,6 +77,19 @@ const CORE_ENTITIES = [
     Moves_1.default,
     Research_1.default,
     Visibility_1.default,
+    // `core-diplomacy`'s concrete classes. A save names them as soon as two
+    // players meet, and before these were here every such save failed to load.
+    // `Contact`, `Peace`, `War` and the proposals live in `civ1-diplomacy`.
+    Abstain_1.default,
+    Accept_1.default,
+    Acknowledge_1.default,
+    Declaration_1.default,
+    Decline_1.default,
+    Dialogue_1.default,
+    Initiate_1.default,
+    Negotiation_1.default,
+    Never_1.default,
+    Terminate_1.default,
     BuildCost_1.default,
     BuildItem_1.default,
     BuildProgress_1.default,
