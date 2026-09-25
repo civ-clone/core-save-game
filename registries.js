@@ -48,6 +48,11 @@ exports.DISPOSITIONS = {
     // placed, per-tile instance.
     terrainFeatures: 'state',
     tileImprovements: 'state',
+    // Which unit is aboard which ship or Carrier: one `TransportManifest` per
+    // stowed unit. It was filed under live connections alongside `clients`, as if
+    // it held network `Transport`s, so the manifests were never saved and a loaded
+    // game had every unit aboard a ship stranded (civ-clone/web-renderer#81).
+    transports: 'state',
     unitImprovements: 'state',
     units: 'state',
     wonders: 'state',
@@ -86,7 +91,6 @@ exports.DISPOSITIONS = {
     // pending promises; none of that survives a round trip, and `save.clients`
     // carries descriptors for the loader to rebuild from.
     clients: 'never',
-    transports: 'never',
     // Not registries.
     classes: 'context',
     engine: 'context',
