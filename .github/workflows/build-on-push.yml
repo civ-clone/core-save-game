@@ -1,0 +1,26 @@
+name: Build and test application on push to remote
+
+on: [push]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 11
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      # No lock file, so this tests what a consumer resolves. The settings match
+      # web-renderer's pnpm-workspace.yaml: several @civ-clone packages depend on
+      # each other as `github:` URLs, this project's own releases are often only
+      # minutes old, and nothing here needs a dependency's build script.
+      - run: >-
+          pnpm install --no-frozen-lockfile
+          --config.block-exotic-subdeps=false
+          --config.minimum-release-age=0
+          --config.strict-dep-builds=false
+      - run: npm run --if-present prettier:check
+      - run: npm run --if-present test
