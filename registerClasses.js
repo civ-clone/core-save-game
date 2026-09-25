@@ -16,6 +16,7 @@ const BuildProgress_1 = require("@civ-clone/core-city-build/Yields/BuildProgress
 const CityBuild_1 = require("@civ-clone/core-city-build/CityBuild");
 const Capacity_1 = require("@civ-clone/core-unit-transport/Yields/Capacity");
 const CargoWeight_1 = require("@civ-clone/core-unit-transport/Yields/CargoWeight");
+const TransportManifest_1 = require("@civ-clone/core-unit-transport/TransportManifest");
 const CityGrowth_1 = require("@civ-clone/core-city-growth/CityGrowth");
 const Civilization_1 = require("@civ-clone/core-civilization/Civilization");
 const Abstain_1 = require("@civ-clone/core-diplomacy/Proposal/Abstain");
@@ -115,6 +116,7 @@ const CORE_ENTITIES = [
     Slot_1.default,
     StrategyNote_1.default,
     Tile_1.default,
+    TransportManifest_1.default,
     WorkedTile_1.default,
     World_1.default,
 ];

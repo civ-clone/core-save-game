@@ -16,6 +16,7 @@ import BuildProgress from '@civ-clone/core-city-build/Yields/BuildProgress';
 import CityBuild from '@civ-clone/core-city-build/CityBuild';
 import Capacity from '@civ-clone/core-unit-transport/Yields/Capacity';
 import CargoWeight from '@civ-clone/core-unit-transport/Yields/CargoWeight';
+import TransportManifest from '@civ-clone/core-unit-transport/TransportManifest';
 import CityGrowth from '@civ-clone/core-city-growth/CityGrowth';
 import Civilization from '@civ-clone/core-civilization/Civilization';
 import Abstain from '@civ-clone/core-diplomacy/Proposal/Abstain';
@@ -118,6 +119,7 @@ const CORE_ENTITIES: SaveableClass[] = [
   SpaceshipSlot,
   StrategyNote,
   Tile,
+  TransportManifest,
   WorkedTile,
   World,
 ] as unknown as SaveableClass[];
