@@ -54,6 +54,7 @@ import Terminate from '@civ-clone/core-diplomacy/Negotiation/Terminate';
 import Tile from '@civ-clone/core-world/Tile';
 import Visibility from '@civ-clone/core-unit/Yields/Visibility';
 import WorkedTile from '@civ-clone/core-city/WorkedTile';
+import Specialist from '@civ-clone/core-city/Specialist';
 import World from '@civ-clone/core-world/World';
 
 const CORE_ENTITIES: SaveableClass[] = [
@@ -117,6 +118,7 @@ const CORE_ENTITIES: SaveableClass[] = [
   SpaceshipLayout,
   SpaceshipPart,
   SpaceshipSlot,
+  Specialist,
   StrategyNote,
   Tile,
   TransportManifest,
