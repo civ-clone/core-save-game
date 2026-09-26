@@ -54,6 +54,7 @@ const Terminate_1 = require("@civ-clone/core-diplomacy/Negotiation/Terminate");
 const Tile_1 = require("@civ-clone/core-world/Tile");
 const Visibility_1 = require("@civ-clone/core-unit/Yields/Visibility");
 const WorkedTile_1 = require("@civ-clone/core-city/WorkedTile");
+const Specialist_1 = require("@civ-clone/core-city/Specialist");
 const World_1 = require("@civ-clone/core-world/World");
 const CORE_ENTITIES = [
     // `Yield` subclasses are constructed directly and appear in no registry, so
@@ -114,6 +115,7 @@ const CORE_ENTITIES = [
     Layout_1.default,
     Part_1.default,
     Slot_1.default,
+    Specialist_1.default,
     StrategyNote_1.default,
     Tile_1.default,
     TransportManifest_1.default,

@@ -57,6 +57,9 @@ export const DISPOSITIONS: Record<keyof GameSlots, Disposition> = {
   playerWorlds: 'state', // 4 PlayerWorld
   players: 'state', // 4 Player
   spaceships: 'state', // empty at turn 8; built late
+  // Citizens working no tile: Entertainers, Taxmen and Scientists. Their class is their kind, and the kinds are in
+  // `availableSpecialists` (civ-clone/web-renderer#84).
+  specialists: 'state',
   // AI working memory, and `GoTo`'s remaining path. It read "empty at turn 8"
   // for a while, which was true and also the reason nobody noticed that
   // `StrategyNote` was not a `DataObject` — the slot was dispositioned as
@@ -95,6 +98,7 @@ export const DISPOSITIONS: Record<keyof GameSlots, Disposition> = {
   aiClients: 'classes', // 1 SimpleAIClient
   availableCityBuildItems: 'classes', // 76
   availableGovernments: 'classes', // 5
+  availableSpecialists: 'classes', // 3
   availableTerrainFeatures: 'classes', // 10
   // Added so a save can resolve `Irrigation`, `Road` and `Fortified` by name.
   // `tileImprovements` and `unitImprovements` hold the *built* instances; these
