@@ -144,6 +144,16 @@ const save = (game, options = {}) => {
         // exercise.
         entities: [...entities.values()].sort((a, b) => a.id.localeCompare(b.id)),
         registries,
+        cityNames: {
+            taken: game.cityNames.taken().map((cityName) => {
+                const CivilizationType = cityName.civilization();
+                return {
+                    name: cityName.name(),
+                    civilization: CivilizationType ? (0, DataObject_1.typeNameOf)(CivilizationType) : null,
+                };
+            }),
+            counter: game.cityNames.counter(),
+        },
         clients: game.clients.entries().map((client) => {
             const player = client.player();
             return {

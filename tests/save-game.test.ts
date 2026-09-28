@@ -1,3 +1,5 @@
+import CityName from '@civ-clone/core-civilization/CityName';
+import Civilization from '@civ-clone/core-civilization/Civilization';
 import { DataObject } from '@civ-clone/core-data-object/DataObject';
 import { EntityRegistry } from '@civ-clone/core-registry/EntityRegistry';
 import { Game } from '@civ-clone/core-game/Game';
@@ -229,6 +231,167 @@ describe('save and hydrate', (): void => {
     expect(
       JSON.stringify(save(loaded, { name: 'test', createdAt: 0 }))
     ).to.equal(JSON.stringify(first));
+  });
+});
+
+class Greek extends Civilization {}
+class English extends Civilization {}
+
+/** Just enough of a player and a city for `hydrate` to name the city. */
+class OldPlayer extends DataObject {
+  private _civilization: Civilization;
+
+  constructor(civilization: Civilization) {
+    super();
+
+    this._civilization = civilization;
+
+    this.addKey('civilization');
+  }
+
+  civilization(): Civilization {
+    return this._civilization;
+  }
+}
+
+class OldCity extends DataObject {
+  private _name: string;
+  private _player: OldPlayer;
+
+  constructor(name: string, player: OldPlayer) {
+    super();
+
+    this._name = name;
+    this._player = player;
+
+    this.addKey('name', 'player');
+  }
+
+  name(): string {
+    return this._name;
+  }
+
+  player(): OldPlayer {
+    return this._player;
+  }
+}
+
+const fillCityNames = (game: Game): void =>
+  game.cityNames.register(
+    new CityName('Athens', Greek, true),
+    new CityName('Sparta', Greek),
+    new CityName('Corinth', Greek),
+    new CityName('London', English, true),
+    new CityName('Athens', English),
+    new CityName('Utica', null)
+  );
+
+const poolOf = (game: Game): string[] =>
+  game.cityNames
+    .entries()
+    .map(
+      (cityName: CityName): string =>
+        `${cityName.civilization()?.name ?? '-'}:${cityName.name()}`
+    );
+
+describe('city names', (): void => {
+  const played = (): Game => {
+    const { game } = gameWithCycle();
+
+    game.classes.register(Greek, English);
+    fillCityNames(game);
+    game.cityNames.takeCapitalByCivilization(Greek);
+    game.cityNames.takeCapitalByCivilization(English);
+    game.cityNames.takeByCivilization(English);
+
+    return game;
+  };
+
+  it('should record the names handed out, with their civilizations', (): void => {
+    const file = save(played(), { name: 'test', createdAt: 0 });
+
+    expect(file.cityNames).to.deep.equal({
+      taken: [
+        { name: 'Athens', civilization: 'Greek' },
+        { name: 'London', civilization: 'English' },
+        { name: 'Athens', civilization: 'English' },
+      ],
+      counter: 1,
+    });
+  });
+
+  it('should take them out of a freshly filled pool on load', (): void => {
+    const game = played();
+    const loaded = loadTargetFor(game);
+
+    fillCityNames(loaded);
+    hydrate(save(game, { name: 'test', createdAt: 0 }), loaded);
+
+    expect(poolOf(loaded)).to.deep.equal(poolOf(game));
+    expect(loaded.cityNames.takeCapitalByCivilization(Greek)).to.not.equal(
+      'Athens'
+    );
+  });
+
+  it('should write the same names again after a load', (): void => {
+    const game = played();
+    const loaded = loadTargetFor(game);
+    const first = save(game, { name: 'test', createdAt: 0 });
+
+    fillCityNames(loaded);
+    hydrate(first, loaded);
+
+    expect(
+      save(loaded, { name: 'test', createdAt: 0 }).cityNames
+    ).to.deep.equal(first.cityNames);
+  });
+
+  it('should refuse a name whose civilization is not registered', (): void => {
+    const game = played();
+    const file = save(game, { name: 'test', createdAt: 0 });
+
+    file.cityNames!.taken.push({ name: 'Babylon', civilization: 'Babylonian' });
+
+    expect(() => hydrate(file, loadTargetFor(game))).to.throw(
+      SaveError,
+      /Babylonian/
+    );
+  });
+
+  it("should fall back to the cities' names for a file without them", (): void => {
+    // A save from before `cityNames` was recorded. The `cities` slot holds
+    // stand-ins, which are all `hydrate` needs to name a city.
+    const { game } = gameWithCycle();
+    const withCities = (): Game =>
+      new Game({
+        classes: game.classes,
+        engine: game.engine,
+        rules: game.rules,
+        cities: new EntityRegistry(OldCity) as never,
+      });
+    const source = withCities();
+    const english = new OldPlayer(new English());
+
+    game.classes.register(Greek, English, OldPlayer, OldCity);
+    source.cities.register(
+      new OldCity('Athens', english) as never,
+      new OldCity('Utica', english) as never,
+      new OldCity('City #3', english) as never
+    );
+
+    const { cityNames, ...file } = save(source, { name: 'test', createdAt: 0 });
+    const loaded = withCities();
+
+    fillCityNames(loaded);
+    hydrate(file, loaded);
+
+    expect(poolOf(loaded)).to.deep.equal([
+      'Greek:Athens',
+      'Greek:Sparta',
+      'Greek:Corinth',
+      'English:London',
+    ]);
+    expect(loaded.cityNames.counter()).to.equal(4);
   });
 });
 
