@@ -3,6 +3,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.hydrate = exports.assertCompatible = void 0;
 const DataObject_1 = require("@civ-clone/core-data-object/DataObject");
 const SaveGame_1 = require("./SaveGame");
+const CityName_1 = require("@civ-clone/core-civilization/CityName");
 const registries_1 = require("./registries");
 const encode_1 = require("./encode");
 const BusyRegistry_1 = require("@civ-clone/core-unit/BusyRegistry");
@@ -139,6 +140,8 @@ const hydrate = (save, game) => {
     });
     // Pass 6 — re-apply the claims players hold on constructor registries.
     reclaim(save, game, instances);
+    // Pass 7 — take the names already handed out back out of the name pool.
+    reclaimCityNames(save, game, instances);
     game.engine.emit('save:loaded', save.meta);
 };
 exports.hydrate = hydrate;
@@ -173,6 +176,46 @@ const reclaim = (save, game, instances) => {
             }
         }
     });
+};
+/**
+ * The city name pool is a definition registry, so a fresh boot fills it again
+ * and a loaded game would hand out names the saved game already used — the
+ * capital's first, because founding a city always asks for a capital name
+ * (civ-clone/web-renderer#120).
+ *
+ * A file that records `cityNames` is replayed exactly, which also leaves the
+ * pool as the saved game had it, so the names drawn after a load are the ones
+ * an uninterrupted game would have drawn. An older file has only its cities to
+ * go on: their names come out of the pool, each against its owner's
+ * civilization, and the counter resumes after the highest `City #n`. The
+ * names of cities destroyed before such a save can't be recovered.
+ */
+const reclaimCityNames = (save, game, instances) => {
+    var _a;
+    if (save.cityNames) {
+        game.cityNames.restore(save.cityNames.taken.map(({ name, civilization }) => {
+            if (civilization === null) {
+                return new CityName_1.default(name, null);
+            }
+            const CivilizationType = game.classes.get(civilization);
+            if (!CivilizationType) {
+                throw new SaveGame_1.SaveError(`City name '${name}' belongs to civilization '${civilization}', ` +
+                    'which is not registered with `game.classes`.');
+            }
+            return new CityName_1.default(name, CivilizationType);
+        }), save.cityNames.counter);
+        return;
+    }
+    const cities = ((_a = save.registries.cities) !== null && _a !== void 0 ? _a : [])
+        .map((id) => instances.get(id))
+        .filter((entity) => entity !== undefined)
+        .map((city) => city);
+    const counter = cities.reduce((highest, city) => {
+        var _a;
+        const [, number] = (_a = city.name().match(/^City #(\d+)$/)) !== null && _a !== void 0 ? _a : [];
+        return number ? Math.max(highest, Number(number) + 1) : highest;
+    }, 1);
+    game.cityNames.restore(cities.map((city) => new CityName_1.default(city.name(), city.player().civilization().sourceClass())), counter);
 };
 exports.default = exports.hydrate;
 //# sourceMappingURL=hydrate.js.map

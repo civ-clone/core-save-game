@@ -48,6 +48,26 @@ export type SaveGame = {
   registries: {
     [slot: string]: string[];
   };
+  /**
+   * The city names handed out so far, and the next `City #n`.
+   *
+   * The name pool is filled by plugin imports, so it is a definition registry
+   * and its membership is not saved: a loaded game gets a full pool. Recording
+   * what has been *taken* is the smaller half — a few dozen names against
+   * about 1,850 — and `hydrate` takes them out of the pool again. Each name
+   * carries its civilization, because names repeat between civilizations.
+   *
+   * Optional without a format change: a file written before this has none,
+   * and `hydrate` then falls back to the names of the cities in the file
+   * (civ-clone/web-renderer#120).
+   */
+  cityNames?: {
+    taken: {
+      name: string;
+      civilization: string | null;
+    }[];
+    counter: number;
+  };
   /** Descriptors, never the client objects — see `save.ts`. */
   clients: {
     playerId: string;
