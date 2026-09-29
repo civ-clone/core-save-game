@@ -257,14 +257,24 @@ class OldPlayer extends DataObject {
 class OldCity extends DataObject {
   private _name: string;
   private _player: OldPlayer;
+  private _originalPlayer: OldPlayer;
 
-  constructor(name: string, player: OldPlayer) {
+  constructor(
+    name: string,
+    player: OldPlayer,
+    originalPlayer: OldPlayer = player
+  ) {
     super();
 
     this._name = name;
     this._player = player;
+    this._originalPlayer = originalPlayer;
 
-    this.addKey('name', 'player');
+    this.addKey('name', 'player', 'originalPlayer');
+  }
+
+  originalPlayer(): OldPlayer {
+    return this._originalPlayer;
   }
 
   name(): string {
@@ -371,12 +381,15 @@ describe('city names', (): void => {
       });
     const source = withCities();
     const english = new OldPlayer(new English());
+    const greek = new OldPlayer(new Greek());
 
     game.classes.register(Greek, English, OldPlayer, OldCity);
     source.cities.register(
       new OldCity('Athens', english) as never,
       new OldCity('Utica', english) as never,
-      new OldCity('City #3', english) as never
+      new OldCity('City #3', english) as never,
+      // Founded by the Greeks and captured: its name came from the Greek pool.
+      new OldCity('Sparta', english, greek) as never
     );
 
     const { cityNames, ...file } = save(source, { name: 'test', createdAt: 0 });
@@ -387,7 +400,6 @@ describe('city names', (): void => {
 
     expect(poolOf(loaded)).to.deep.equal([
       'Greek:Athens',
-      'Greek:Sparta',
       'Greek:Corinth',
       'English:London',
     ]);

@@ -49,7 +49,7 @@ exports.assertCompatible = assertCompatible;
 /**
  * Load a save into a game.
  *
- * Six passes, and only the first two touch entity data. **Allocate-then-fill
+ * Seven passes, and only the first two touch entity data. **Allocate-then-fill
  * removes the topological ordering requirement entirely**: references resolve
  * against a complete map, so cycles cost nothing and a plugin adding one field
  * cannot break loading with a confusing error. Entities are still *written* in
@@ -186,8 +186,8 @@ const reclaim = (save, game, instances) => {
  * A file that records `cityNames` is replayed exactly, which also leaves the
  * pool as the saved game had it, so the names drawn after a load are the ones
  * an uninterrupted game would have drawn. An older file has only its cities to
- * go on: their names come out of the pool, each against its owner's
- * civilization, and the counter resumes after the highest `City #n`. The
+ * go on: their names come out of the pool, each against the civilization of
+ * the player who founded it, and the counter resumes after the highest `City #n`. The
  * names of cities destroyed before such a save can't be recovered.
  */
 const reclaimCityNames = (save, game, instances) => {
@@ -215,7 +215,14 @@ const reclaimCityNames = (save, game, instances) => {
         const [, number] = (_a = city.name().match(/^City #(\d+)$/)) !== null && _a !== void 0 ? _a : [];
         return number ? Math.max(highest, Number(number) + 1) : highest;
     }, 1);
-    game.cityNames.restore(cities.map((city) => new CityName_1.default(city.name(), city.player().civilization().sourceClass())), counter);
+    // Against the civilization that founded the city, not the one holding it:
+    // a Greek Athens captured by England took its name from the Greek pool.
+    game.cityNames.restore(cities.map((city) => {
+        var _a, _b;
+        return new CityName_1.default(city.name(), ((_b = (_a = city.originalPlayer) === null || _a === void 0 ? void 0 : _a.call(city)) !== null && _b !== void 0 ? _b : city.player())
+            .civilization()
+            .sourceClass());
+    }), counter);
 };
 exports.default = exports.hydrate;
 //# sourceMappingURL=hydrate.js.map
