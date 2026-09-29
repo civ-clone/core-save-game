@@ -18,8 +18,8 @@ importers:
         specifier: ^0.1.0
         version: 0.1.4
       '@civ-clone/core-civilization':
-        specifier: ^0.1.0
-        version: 0.1.6
+        specifier: ^0.1.7
+        version: 0.1.7
       '@civ-clone/core-data-object':
         specifier: ^0.1.16
         version: 0.1.17
@@ -129,8 +129,8 @@ packages:
   '@civ-clone/core-city@0.1.16':
     resolution: {integrity: sha512-dNmJwmyrFSKqODJ/qoE15f9gNz/P4yanh4KV6/L3C86MpfPuHizNYsb3Z+9O+gL/6oCZM8jc5tdbPJa7/elgHw==}
 
-  '@civ-clone/core-civilization@0.1.6':
-    resolution: {integrity: sha512-9VfJ37kubmTDYNhy22nfW5yFsG3WFcmfsBJziNrEqfBsjKo5ejGm55hNg5WUEPzeCFrJ7yztwWiMpjRyo6UdgQ==}
+  '@civ-clone/core-civilization@0.1.7':
+    resolution: {integrity: sha512-2Kw1WNCqoBWYbCJ0sUwsN19yblV9Oco1C7qxhYbL2MVhmqic6KoLHx5qR3l9/vi8GNkaCIXdUMO2klnsoPYUWQ==}
 
   '@civ-clone/core-client@0.1.4':
     resolution: {integrity: sha512-osadRAYf9GkJRUMM4hqLcGqd0sVTiPQpda8SNjE0IZzaC3jWGRUnPa+a708M6RgzcF1IdXJL8Q0sggrGf51fNw==}
@@ -784,7 +784,7 @@ snapshots:
       '@civ-clone/core-world': 0.1.16
       '@civ-clone/core-yield': 0.1.6
 
-  '@civ-clone/core-civilization@0.1.6':
+  '@civ-clone/core-civilization@0.1.7':
     dependencies:
       '@civ-clone/core-data-object': 0.1.17
       '@civ-clone/core-random': 0.1.1
@@ -793,7 +793,7 @@ snapshots:
 
   '@civ-clone/core-client@0.1.4':
     dependencies:
-      '@civ-clone/core-civilization': 0.1.6
+      '@civ-clone/core-civilization': 0.1.7
       '@civ-clone/core-data-object': 0.1.17
       '@civ-clone/core-player': 0.1.9
       '@civ-clone/core-random': 0.1.1
@@ -830,7 +830,7 @@ snapshots:
       '@civ-clone/core-city-build': 0.1.10
       '@civ-clone/core-city-growth': 0.1.4
       '@civ-clone/core-city-improvement': 0.1.6
-      '@civ-clone/core-civilization': 0.1.6
+      '@civ-clone/core-civilization': 0.1.7
       '@civ-clone/core-client': 0.1.4
       '@civ-clone/core-data-object': 0.1.17
       '@civ-clone/core-diplomacy': 0.1.5
@@ -893,7 +893,7 @@ snapshots:
 
   '@civ-clone/core-player@0.1.9':
     dependencies:
-      '@civ-clone/core-civilization': 0.1.6
+      '@civ-clone/core-civilization': 0.1.7
       '@civ-clone/core-data-object': 0.1.17
       '@civ-clone/core-registry': 0.1.5
       '@civ-clone/core-rule': 0.1.5
@@ -930,7 +930,7 @@ snapshots:
 
   '@civ-clone/core-strategy@0.1.5':
     dependencies:
-      '@civ-clone/core-civilization': 0.1.6
+      '@civ-clone/core-civilization': 0.1.7
       '@civ-clone/core-data-object': 0.1.17
       '@civ-clone/core-player': 0.1.9
       '@civ-clone/core-random': 0.1.1
