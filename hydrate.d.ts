@@ -15,7 +15,7 @@ export declare const assertCompatible: (save: SaveGame, game: Game) => void;
 /**
  * Load a save into a game.
  *
- * Six passes, and only the first two touch entity data. **Allocate-then-fill
+ * Seven passes, and only the first two touch entity data. **Allocate-then-fill
  * removes the topological ordering requirement entirely**: references resolve
  * against a complete map, so cycles cost nothing and a plugin adding one field
  * cannot break loading with a confusing error. Entities are still *written* in
