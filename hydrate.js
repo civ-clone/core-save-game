@@ -129,12 +129,19 @@ const hydrate = (save, game) => {
     // been registered into yet answers with nothing: a unit saved part-way
     // through fortifying failed to load, naming an effect the file did in fact
     // contain. Filling the objects is not enough; they have to be *findable*.
+    //
+    // Findable *in this game*. The factories are registered at import, closing
+    // over the singleton registries, so the game is passed along: loaded into
+    // any `Game` but `defaultGame` — `gameForLoad`'s, say — a fortifying unit's
+    // factory searched the singletons, found only the saved game's effect, owed
+    // to the saved unit rather than this one, and refused the load
+    // (civ-clone/web-renderer#245).
     instances.forEach((entity) => {
         const record = entity;
         Object.keys(record).forEach((field) => {
             const value = record[field];
             if ((0, encode_1.isBusyRef)(value)) {
-                record[field] = BusyRegistry_1.instance.rebuild(value.$busy, entity);
+                record[field] = BusyRegistry_1.instance.rebuild(value.$busy, entity, game);
             }
         });
     });

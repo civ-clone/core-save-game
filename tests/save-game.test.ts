@@ -11,6 +11,11 @@ import { gameForLoad } from '../gameForLoad';
 import { assertCompatible, hydrate } from '../hydrate';
 import { registerClasses } from '../registerClasses';
 import { save } from '../save';
+import Action from '@civ-clone/core-unit/Action';
+import Busy from '@civ-clone/core-unit/Rules/Busy';
+import Unit from '@civ-clone/core-unit/Unit';
+import { delayedBusy } from '@civ-clone/core-unit/delayedBusy';
+import { registerDelayedAction } from '@civ-clone/core-unit/registerDelayedAction';
 
 /**
  * A minimal entity: a label and a reference to another of its kind, which is
@@ -231,6 +236,91 @@ describe('save and hydrate', (): void => {
     expect(
       JSON.stringify(save(loaded, { name: 'test', createdAt: 0 }))
     ).to.equal(JSON.stringify(first));
+  });
+});
+
+/**
+ * Just enough of a unit for a delayed action: an id, and a `_busy` holding the
+ * rule, which `encode` writes as `$busy` and `hydrate` rebuilds.
+ */
+class Worker extends DataObject {
+  private _busy: Busy | null = null;
+
+  busy(): Busy | null {
+    return this._busy;
+  }
+
+  setActive(): void {}
+
+  setBusy(busy: Busy | null = null): void {
+    this._busy = busy;
+  }
+}
+
+class Digging extends Busy {}
+
+const DIGGING = 'core-save-game-test:dig';
+
+// As a plugin does it: at import, so against the singleton registries.
+registerDelayedAction({
+  BusyRule: Digging,
+  handler: DIGGING,
+  action: (unit: Unit) => ({ unit: () => unit } as unknown as Action),
+  complete: (): void => {},
+});
+
+describe('a unit part-way through a delayed action', (): void => {
+  // A game with registries of its own, not the singletons, which is what any
+  // `Game` but `defaultGame` is — and `gameForLoad` builds one of those.
+  const gameWithWorker = (): Game => {
+    const game = new Game();
+    const worker = new Worker();
+
+    game.engine.registerPlugins(PLUGINS);
+    registerClasses(game);
+    game.classes.register(Worker);
+    game.turn.set(4);
+
+    const effect = new PendingEffect(DIGGING, worker, { endTurn: '5' });
+
+    game.pendingEffects.register(effect);
+    worker.setBusy(
+      delayedBusy(
+        Digging,
+        { unit: () => worker } as unknown as Action,
+        effect,
+        game.pendingEffects,
+        game.rules,
+        game.turn
+      )
+    );
+
+    return game;
+  };
+
+  it('should be rebuilt from the effect in the game it is loaded into', (): void => {
+    // civ-clone/web-renderer#245: the factory read the singleton registry,
+    // which does not hold this effect, and refused the load.
+    const game = gameWithWorker();
+    const loaded = loadTargetFor(game);
+
+    hydrate(save(game, { name: 'test', createdAt: 0 }), loaded);
+
+    const [effect] = loaded.pendingEffects.entries();
+    const worker = effect.target() as Worker;
+    const busy = worker.busy() as Busy;
+
+    expect(busy).to.be.instanceOf(Digging);
+    expect(busy.validate()).to.equal(false);
+
+    loaded.turn.increment();
+
+    expect(busy.validate()).to.equal(true);
+
+    busy.process();
+
+    expect(worker.busy()).to.equal(null);
+    expect(loaded.pendingEffects.entries()).to.deep.equal([]);
   });
 });
 
