@@ -55,6 +55,7 @@ import Tile from '@civ-clone/core-world/Tile';
 import Visibility from '@civ-clone/core-unit/Yields/Visibility';
 import WorkedTile from '@civ-clone/core-city/WorkedTile';
 import Specialist from '@civ-clone/core-city/Specialist';
+import TradeRoute from '@civ-clone/core-city/TradeRoute';
 import World from '@civ-clone/core-world/World';
 
 const CORE_ENTITIES: SaveableClass[] = [
@@ -119,6 +120,7 @@ const CORE_ENTITIES: SaveableClass[] = [
   SpaceshipPart,
   SpaceshipSlot,
   Specialist,
+  TradeRoute,
   StrategyNote,
   Tile,
   TransportManifest,

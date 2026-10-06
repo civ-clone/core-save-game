@@ -70,6 +70,8 @@ export const DISPOSITIONS: Record<keyof GameSlots, Disposition> = {
   // placed, per-tile instance.
   terrainFeatures: 'state',
   tileImprovements: 'state', // 6 Irrigation/Road
+  // Caravans' trade routes: one `TradeRoute` per route a city holds (civ-clone/web-renderer#57).
+  tradeRoutes: 'state',
   // Which unit is aboard which ship or Carrier: one `TransportManifest` per
   // stowed unit. It was filed under live connections alongside `clients`, as if
   // it held network `Transport`s, so the manifests were never saved and a loaded

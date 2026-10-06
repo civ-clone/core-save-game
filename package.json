@@ -1,6 +1,6 @@
 {
   "name": "@civ-clone/core-save-game",
-  "version": "0.1.12",
+  "version": "0.1.13",
   "main": "index.js",
   "repository": "git@github.com:civ-clone/core-save-game.git",
   "keywords": [
@@ -22,14 +22,14 @@
     "ts:compile": "tsc --build tsconfig.json"
   },
   "dependencies": {
-    "@civ-clone/core-city": "^0.1.16",
+    "@civ-clone/core-city": "^0.1.18",
     "@civ-clone/core-city-build": "^0.1.0",
     "@civ-clone/core-city-growth": "^0.1.0",
     "@civ-clone/core-civilization": "^0.1.7",
     "@civ-clone/core-data-object": "^0.1.16",
     "@civ-clone/core-diplomacy": "^0.1.0",
     "@civ-clone/core-engine": "^0.1.5",
-    "@civ-clone/core-game": "^0.1.6",
+    "@civ-clone/core-game": "^0.1.8",
     "@civ-clone/core-goody-hut": "^0.1.0",
     "@civ-clone/core-government": "^0.1.0",
     "@civ-clone/core-pending-effect": "^0.1.0",
