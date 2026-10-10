@@ -28,6 +28,7 @@ const Defence_1 = require("@civ-clone/core-unit/Yields/Defence");
 const Dialogue_1 = require("@civ-clone/core-diplomacy/Negotiation/Dialogue");
 const Expiry_1 = require("@civ-clone/core-diplomacy/Expiry");
 const FoodStorage_1 = require("@civ-clone/core-city-growth/Yields/FoodStorage");
+const GameDifficulty_1 = require("@civ-clone/core-difficulty/GameDifficulty");
 const GoodyHut_1 = require("@civ-clone/core-goody-hut/GoodyHut");
 const Initiate_1 = require("@civ-clone/core-diplomacy/Negotiation/Initiate");
 const Interaction_1 = require("@civ-clone/core-diplomacy/Interaction");
@@ -76,6 +77,7 @@ const CORE_ENTITIES = [
     CargoWeight_1.default,
     Defence_1.default,
     FoodStorage_1.default,
+    GameDifficulty_1.default,
     Movement_1.default,
     Moves_1.default,
     Research_1.default,

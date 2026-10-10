@@ -1,5 +1,6 @@
 import CityName from '@civ-clone/core-civilization/CityName';
 import Civilization from '@civ-clone/core-civilization/Civilization';
+import Difficulty from '@civ-clone/core-difficulty/Difficulty';
 import { DataObject } from '@civ-clone/core-data-object/DataObject';
 import { EntityRegistry } from '@civ-clone/core-registry/EntityRegistry';
 import { Game } from '@civ-clone/core-game/Game';
@@ -236,6 +237,41 @@ describe('save and hydrate', (): void => {
     expect(
       JSON.stringify(save(loaded, { name: 'test', createdAt: 0 }))
     ).to.equal(JSON.stringify(first));
+  });
+});
+
+describe('the difficulty level', (): void => {
+  class Hard extends Difficulty {
+    static level(): number {
+      return 3;
+    }
+  }
+
+  it('should round-trip the level a game is played at', (): void => {
+    const { game } = gameWithCycle();
+
+    // `registerClasses` reads `availableDifficulties` the same way; `gameWithCycle` has already called it.
+    game.classes.register(Hard);
+    game.difficulty.set(Hard);
+
+    const loaded = loadTargetFor(game);
+
+    hydrate(save(game, { name: 'test', createdAt: 0 }), loaded);
+
+    expect(loaded.difficulty.get()).to.equal(Hard);
+  });
+
+  it('should load a file written before there were levels with none', (): void => {
+    const { game } = gameWithCycle();
+    const file = save(game, { name: 'test', createdAt: 0 });
+
+    delete file.registries.difficulty;
+
+    const loaded = loadTargetFor(game);
+
+    hydrate(file, loaded);
+
+    expect(loaded.difficulty.get()).to.be.null;
   });
 });
 

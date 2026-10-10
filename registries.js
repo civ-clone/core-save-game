@@ -24,6 +24,9 @@ exports.DISPOSITIONS = {
     cityGrowth: 'state',
     cityImprovements: 'state',
     currentPlayers: 'state',
+    // The level the game is played at: one `GameDifficulty`, or none in a save made before levels existed
+    //  (civ-clone/web-renderer#173).
+    difficulty: 'state',
     goodyHuts: 'state',
     interactions: 'state',
     landMasses: 'state',
@@ -78,6 +81,8 @@ exports.DISPOSITIONS = {
     advances: 'classes',
     aiClients: 'classes',
     availableCityBuildItems: 'classes',
+    // The levels a ruleset offers, so a save can name the one its game is played at.
+    availableDifficulties: 'classes',
     availableGovernments: 'classes',
     availableSpecialists: 'classes',
     availableTerrainFeatures: 'classes',
