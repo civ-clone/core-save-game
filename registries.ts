@@ -43,6 +43,9 @@ export const DISPOSITIONS: Record<keyof GameSlots, Disposition> = {
   cityGrowth: 'state', // 3 CityGrowth
   cityImprovements: 'state', // 3 Palace
   currentPlayers: 'state', // empty at turn 8; whose turn it is
+  // The level the game is played at: one `GameDifficulty`, or none in a save made before levels existed
+  //  (civ-clone/web-renderer#173).
+  difficulty: 'state',
   goodyHuts: 'state', // 32 GoodyHut
   interactions: 'state', // empty at turn 8; diplomacy in progress
   landMasses: 'state', // 12 LandMass
@@ -99,6 +102,8 @@ export const DISPOSITIONS: Record<keyof GameSlots, Disposition> = {
   advances: 'classes', // 67
   aiClients: 'classes', // 1 SimpleAIClient
   availableCityBuildItems: 'classes', // 76
+  // The levels a ruleset offers, so a save can name the one its game is played at.
+  availableDifficulties: 'classes',
   availableGovernments: 'classes', // 5
   availableSpecialists: 'classes', // 3
   availableTerrainFeatures: 'classes', // 10
