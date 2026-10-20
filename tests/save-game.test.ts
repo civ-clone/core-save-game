@@ -620,6 +620,56 @@ describe('city names', (): void => {
   });
 });
 
+describe('claimed civilizations', (): void => {
+  /** Just enough of a player's view of the world for `hydrate` to find its player. */
+  class OldPlayerWorld extends DataObject {
+    private _player: OldPlayer;
+
+    constructor(player: OldPlayer) {
+      super();
+
+      this._player = player;
+
+      this.addKey('player');
+    }
+
+    player(): OldPlayer {
+      return this._player;
+    }
+  }
+
+  it("should keep a defeated player's civilization claimed, from its PlayerWorld", (): void => {
+    const { game } = gameWithCycle();
+    const withPlayers = (): Game =>
+      new Game({
+        classes: game.classes,
+        engine: game.engine,
+        rules: game.rules,
+        players: new EntityRegistry(OldPlayer) as never,
+        playerWorlds: new EntityRegistry(OldPlayerWorld) as never,
+      });
+    const source = withPlayers();
+    const english = new OldPlayer(new English());
+    // Defeated: out of the players, but with its world still saved.
+    const greek = new OldPlayer(new Greek());
+
+    game.classes.register(Greek, English, OldPlayer, OldPlayerWorld);
+    source.players.register(english as never);
+    source.playerWorlds.register(
+      new OldPlayerWorld(english) as never,
+      new OldPlayerWorld(greek) as never
+    );
+
+    const file = save(source, { name: 'test', createdAt: 0 });
+    const loaded = withPlayers();
+
+    loaded.civilizations.register(Greek, English);
+    hydrate(file, loaded);
+
+    expect(loaded.civilizations.entries()).to.deep.equal([]);
+  });
+});
+
 describe('assertCompatible', (): void => {
   const fileFrom = () => {
     const { game } = gameWithCycle();

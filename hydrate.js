@@ -161,10 +161,19 @@ exports.hydrate = hydrate;
  * and leaders, so the claims can be replayed from them.
  */
 const reclaim = (save, game, instances) => {
-    var _a;
-    const players = ((_a = save.registries.players) !== null && _a !== void 0 ? _a : [])
-        .map((id) => instances.get(id))
-        .filter((entity) => entity !== undefined);
+    var _a, _b;
+    // The players still in the game, and those who were, whose civilizations stay claimed: a defeated player is gone
+    //  from `players` but keeps its `PlayerWorld`. Without them a load hands a destroyed civilization out again
+    //  (civ-clone/web-renderer#178).
+    const players = [
+        ...new Set([
+            ...((_a = save.registries.players) !== null && _a !== void 0 ? _a : []).map((id) => instances.get(id)),
+            ...((_b = save.registries.playerWorlds) !== null && _b !== void 0 ? _b : []).map((id) => {
+                var _a, _b;
+                return (_b = (_a = instances.get(id)) === null || _a === void 0 ? void 0 : _a.player) === null || _b === void 0 ? void 0 : _b.call(_a);
+            }),
+        ].filter((entity) => entity !== undefined)),
+    ];
     players.forEach((player) => {
         var _a, _b, _c, _d;
         const civilization = (_b = (_a = player).civilization) === null || _b === void 0 ? void 0 : _b.call(_a);
