@@ -27,6 +27,9 @@ exports.DISPOSITIONS = {
     // The level the game is played at: one `GameDifficulty`, or none in a save made before levels existed
     //  (civ-clone/web-renderer#173).
     difficulty: 'state',
+    // How the game ended: one `GameResult`, or none while it's being played and in a save made before games could end
+    //  (civ-clone/web-renderer#176).
+    gameResult: 'state',
     goodyHuts: 'state',
     interactions: 'state',
     landMasses: 'state',
