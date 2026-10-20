@@ -275,6 +275,42 @@ describe('the difficulty level', (): void => {
   });
 });
 
+describe('world peace', (): void => {
+  it('should round-trip the turns of peace', (): void => {
+    const { game } = gameWithCycle();
+
+    game.worldPeace.get().increment();
+    game.worldPeace.get().increment();
+
+    const loaded = loadTargetFor(game);
+
+    hydrate(save(game, { name: 'test', createdAt: 0 }), loaded);
+
+    expect(loaded.worldPeace.turns()).to.equal(2);
+
+    loaded.worldPeace.get().increment();
+
+    expect(loaded.worldPeace.turns()).to.equal(3);
+    expect(loaded.worldPeace.length).to.equal(1);
+  });
+
+  it('should load a file written before it existed with no turns of peace', (): void => {
+    const { game } = gameWithCycle();
+
+    game.worldPeace.get().increment();
+
+    const file = save(game, { name: 'test', createdAt: 0 });
+
+    delete file.registries.worldPeace;
+
+    const loaded = loadTargetFor(game);
+
+    hydrate(file, loaded);
+
+    expect(loaded.worldPeace.turns()).to.equal(0);
+  });
+});
+
 /**
  * Just enough of a unit for a delayed action: an id, and a `_busy` holding the
  * rule, which `encode` writes as `$busy` and `hydrate` rebuilds.

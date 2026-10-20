@@ -65,6 +65,9 @@ exports.DISPOSITIONS = {
     units: 'state',
     wonders: 'state',
     workedTiles: 'state',
+    // The turns the world has gone without a fight: one `WorldPeace`, or none before the first is counted and in a save
+    //  made before it existed (civ-clone/web-renderer#149).
+    worldPeace: 'state',
     // Registered by plugin imports. All of these are non-empty *before* a game
     // starts, which is what distinguishes them.
     additionalData: 'definitions',

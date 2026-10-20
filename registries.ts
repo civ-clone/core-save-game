@@ -84,6 +84,9 @@ export const DISPOSITIONS: Record<keyof GameSlots, Disposition> = {
   units: 'state', // 6 Settlers/Horseman/Warrior
   wonders: 'state', // empty at turn 8
   workedTiles: 'state', // 6 WorkedTile
+  // The turns the world has gone without a fight: one `WorldPeace`, or none before the first is counted and in a save
+  //  made before it existed (civ-clone/web-renderer#149).
+  worldPeace: 'state',
 
   // Registered by plugin imports. All of these are non-empty *before* a game
   // starts, which is what distinguishes them.
