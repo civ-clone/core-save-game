@@ -299,6 +299,19 @@ describe('the game result', (): void => {
     expect(loaded.gameResult.pending()).to.equal(false);
   });
 
+  it('should round-trip an ending with no winner', (): void => {
+    const { game } = gameWithCycle();
+
+    game.gameResult.register(new GameResult('date', null, 400));
+
+    const loaded = loadTargetFor(game);
+
+    hydrate(save(game, { name: 'test', createdAt: 0 }), loaded);
+
+    expect(loaded.gameResult.get()!.winner()).to.equal(null);
+    expect(loaded.gameResult.pending()).to.equal(true);
+  });
+
   it('should load a file written before games could end with no result', (): void => {
     const { game } = gameWithCycle();
     const file = save(game, { name: 'test', createdAt: 0 });
