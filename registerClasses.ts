@@ -58,6 +58,7 @@ import WorkedTile from '@civ-clone/core-city/WorkedTile';
 import Specialist from '@civ-clone/core-city/Specialist';
 import TradeRoute from '@civ-clone/core-city/TradeRoute';
 import World from '@civ-clone/core-world/World';
+import WorldPeace from '@civ-clone/core-score/WorldPeace';
 
 const CORE_ENTITIES: SaveableClass[] = [
   // `Yield` subclasses are constructed directly and appear in no registry, so
@@ -83,6 +84,7 @@ const CORE_ENTITIES: SaveableClass[] = [
   Moves,
   Research,
   Visibility,
+  WorldPeace,
 
   // `core-diplomacy`'s concrete classes. A save names them as soon as two
   // players meet, and before these were here every such save failed to load.

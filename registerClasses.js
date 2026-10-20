@@ -58,6 +58,7 @@ const WorkedTile_1 = require("@civ-clone/core-city/WorkedTile");
 const Specialist_1 = require("@civ-clone/core-city/Specialist");
 const TradeRoute_1 = require("@civ-clone/core-city/TradeRoute");
 const World_1 = require("@civ-clone/core-world/World");
+const WorldPeace_1 = require("@civ-clone/core-score/WorldPeace");
 const CORE_ENTITIES = [
     // `Yield` subclasses are constructed directly and appear in no registry, so
     // every `core-` one has to be named. `Moves` and `FoodStorage` were found
@@ -82,6 +83,7 @@ const CORE_ENTITIES = [
     Moves_1.default,
     Research_1.default,
     Visibility_1.default,
+    WorldPeace_1.default,
     // `core-diplomacy`'s concrete classes. A save names them as soon as two
     // players meet, and before these were here every such save failed to load.
     // `Contact`, `Peace`, `War` and the proposals live in `civ1-diplomacy`.
