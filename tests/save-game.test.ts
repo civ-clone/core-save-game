@@ -1,6 +1,8 @@
 import CityName from '@civ-clone/core-civilization/CityName';
 import Civilization from '@civ-clone/core-civilization/Civilization';
 import Difficulty from '@civ-clone/core-difficulty/Difficulty';
+import GameResult from '@civ-clone/core-turn-based-game/GameResult';
+import Player from '@civ-clone/core-player/Player';
 import { DataObject } from '@civ-clone/core-data-object/DataObject';
 import { EntityRegistry } from '@civ-clone/core-registry/EntityRegistry';
 import { Game } from '@civ-clone/core-game/Game';
@@ -272,6 +274,42 @@ describe('the difficulty level', (): void => {
     hydrate(file, loaded);
 
     expect(loaded.difficulty.get()).to.be.null;
+  });
+});
+
+describe('the game result', (): void => {
+  it('should round-trip how the game ended, and whether its scoring is complete', (): void => {
+    const { game } = gameWithCycle();
+    const winner = new Player(game.rules);
+
+    game.gameResult.register(new GameResult('conquest', winner, 212));
+    game.gameResult.get()!.completeScoring();
+
+    const loaded = loadTargetFor(game);
+
+    hydrate(save(game, { name: 'test', createdAt: 0 }), loaded);
+
+    const result = loaded.gameResult.get()!;
+
+    expect(result.reason()).to.equal('conquest');
+    expect(result.turn()).to.equal(212);
+    expect(result.winner()).to.be.instanceOf(Player);
+    expect(result.winner()!.id()).to.equal(winner.id());
+    expect(result.scoringComplete()).to.equal(true);
+    expect(loaded.gameResult.pending()).to.equal(false);
+  });
+
+  it('should load a file written before games could end with no result', (): void => {
+    const { game } = gameWithCycle();
+    const file = save(game, { name: 'test', createdAt: 0 });
+
+    delete file.registries.gameResult;
+
+    const loaded = loadTargetFor(game);
+
+    hydrate(file, loaded);
+
+    expect(loaded.gameResult.get()).to.be.null;
   });
 });
 
