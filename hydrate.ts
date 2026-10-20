@@ -217,9 +217,23 @@ const reclaim = (
   game: Game,
   instances: Map<string, DataObject>
 ): void => {
-  const players = (save.registries.players ?? [])
-    .map((id) => instances.get(id))
-    .filter((entity): entity is DataObject => entity !== undefined);
+  // The players still in the game, and those who were, whose civilizations stay claimed: a defeated player is gone
+  //  from `players` but keeps its `PlayerWorld`. Without them a load hands a destroyed civilization out again
+  //  (civ-clone/web-renderer#178).
+  const players = [
+    ...new Set(
+      [
+        ...(save.registries.players ?? []).map((id) => instances.get(id)),
+        ...(save.registries.playerWorlds ?? []).map((id) =>
+          (
+            instances.get(id) as unknown as
+              | { player?: () => DataObject }
+              | undefined
+          )?.player?.()
+        ),
+      ].filter((entity): entity is DataObject => entity !== undefined)
+    ),
+  ];
 
   players.forEach((player) => {
     const civilization = (
