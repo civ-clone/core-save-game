@@ -96,6 +96,9 @@ export const DISPOSITIONS: Record<keyof GameSlots, Disposition> = {
   additionalData: 'definitions', // 22 AdditionalData
   attributes: 'definitions', // 42 Attribute — DataObjects, but definitions
   cityNames: 'definitions', // 1847 CityName
+  // What the rules are made from, and the civilopedia reads: entries registered with the rules by the same plugin
+  //  imports, never changed by play (civ-clone/web-renderer#37).
+  requirements: 'definitions',
   rules: 'definitions', // 1055 Rule
   strategies: 'definitions', // AI strategy definitions
   traits: 'definitions', // 42 Trait — DataObjects, but definitions

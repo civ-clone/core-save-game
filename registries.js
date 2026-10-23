@@ -76,6 +76,9 @@ exports.DISPOSITIONS = {
     additionalData: 'definitions',
     attributes: 'definitions',
     cityNames: 'definitions',
+    // What the rules are made from, and the civilopedia reads: entries registered with the rules by the same plugin
+    //  imports, never changed by play (civ-clone/web-renderer#37).
+    requirements: 'definitions',
     rules: 'definitions',
     strategies: 'definitions',
     traits: 'definitions',
