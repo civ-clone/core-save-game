@@ -10,6 +10,10 @@ import { PendingEffect } from '@civ-clone/core-pending-effect';
 import { SaveError } from '../SaveGame';
 import { decode, encode } from '../encode';
 import { expect } from 'chai';
+import {
+  Condition,
+  Requirement,
+} from '@civ-clone/core-requirement/Requirement';
 import { gameForLoad } from '../gameForLoad';
 import { assertCompatible, hydrate } from '../hydrate';
 import { registerClasses } from '../registerClasses';
@@ -390,6 +394,34 @@ registerDelayedAction({
   handler: DIGGING,
   action: (unit: Unit) => ({ unit: () => unit } as unknown as Action),
   complete: (): void => {},
+});
+
+describe('requirements', (): void => {
+  it('should be adopted with the rules they make, and never written', (): void => {
+    const { game } = gameWithCycle();
+
+    game.requirements.add(
+      null,
+      new Requirement({
+        id: 'test:node/needs-a-label',
+        subject: Node,
+        relation: 'requires',
+        targets: [new Condition('test:labelled')],
+      })
+    );
+
+    const file = save(game, { name: 'test', createdAt: 0 }),
+      loaded = gameForLoad({
+        classes: game.classes,
+        engine: game.engine,
+        requirements: game.requirements,
+        rules: game.rules,
+      });
+
+    expect(JSON.stringify(file)).to.not.contain('test:node/needs-a-label');
+    expect(loaded.requirements).to.equal(game.requirements);
+    expect(loaded.rules).to.equal(game.rules);
+  });
 });
 
 describe('a unit part-way through a delayed action', (): void => {
