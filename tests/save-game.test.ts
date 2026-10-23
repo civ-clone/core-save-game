@@ -20,6 +20,7 @@ import { registerClasses } from '../registerClasses';
 import { save } from '../save';
 import Action from '@civ-clone/core-unit/Action';
 import Busy from '@civ-clone/core-unit/Rules/Busy';
+import Client from '@civ-clone/core-client/Client';
 import Unit from '@civ-clone/core-unit/Unit';
 import { delayedBusy } from '@civ-clone/core-unit/delayedBusy';
 import { registerDelayedAction } from '@civ-clone/core-unit/registerDelayedAction';
@@ -178,6 +179,43 @@ describe('save and hydrate', (): void => {
       SaveError,
       /manifest/
     );
+  });
+
+  it('should record each client as the host describes it, or as a program by class name', (): void => {
+    class Person extends Client {}
+    class Program extends Client {}
+
+    const { game } = gameWithCycle(),
+      person = new Person(new Player()),
+      program = new Program(new Player());
+
+    game.clients.register(person, program);
+
+    // Without a word from the host, a program by class name: what every file before hosts could say holds.
+    expect(save(game, { name: 'test', createdAt: 0 }).clients).to.deep.equal([
+      { playerId: person.player().id(), kind: 'ai', module: 'Person' },
+      { playerId: program.player().id(), kind: 'ai', module: 'Program' },
+    ]);
+
+    // The host knows which of its clients is a person, and what they're called.
+    expect(
+      save(game, {
+        name: 'test',
+        createdAt: 0,
+        describeClient: (client) =>
+          client === person
+            ? { kind: 'human', module: 'Person', name: 'Dom' }
+            : { kind: 'ai', module: 'Program' },
+      }).clients
+    ).to.deep.equal([
+      {
+        playerId: person.player().id(),
+        kind: 'human',
+        module: 'Person',
+        name: 'Dom',
+      },
+      { playerId: program.player().id(), kind: 'ai', module: 'Program' },
+    ]);
   });
 
   it('should find entities no registry lists, through references', (): void => {

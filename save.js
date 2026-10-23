@@ -60,6 +60,10 @@ const serialise = (entity, discover, classes) => {
         state,
     };
 };
+const describeByClass = (client) => ({
+    kind: 'ai',
+    module: client.constructor.name,
+});
 const save = (game, options = {}) => {
     var _a, _b, _c;
     assertDispositions(game);
@@ -155,11 +159,13 @@ const save = (game, options = {}) => {
             counter: game.cityNames.counter(),
         },
         clients: game.clients.entries().map((client) => {
-            const player = client.player();
+            var _a;
+            const player = client.player(), { kind, module, name } = ((_a = options.describeClient) !== null && _a !== void 0 ? _a : describeByClass)(client);
             return {
                 playerId: player.id(),
-                kind: 'ai',
-                module: client.constructor.name,
+                kind,
+                module,
+                ...(name === undefined ? {} : { name }),
             };
         }),
     };

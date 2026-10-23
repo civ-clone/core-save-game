@@ -68,7 +68,7 @@ export type SaveGame = {
   };
 
   /** Descriptors, never the client objects — see `save.ts`. */
-  clients: { playerId: string; kind: 'human' | 'ai'; module: string }[];
+  clients: ClientDescriptor[];
 
   // No `pendingEffects` field. Format 1 was written with one — always empty,
   // and `hydrate` refused anything else — as a placeholder until effects had a
@@ -76,6 +76,19 @@ export type SaveGame = {
   // is a `DataObject` in the `pendingEffects` registry slot, so it travels in
   // `entities` and `registries` like everything else. Older files still carry
   // `"pendingEffects": []`, which nothing reads.
+};
+
+/**
+ * What a save records of a client: whose it was, whether a person or a program played it, the class that served it,
+ * and a person's name. `save` writes `kind: 'ai'` and the class name unless the host describes its clients
+ * (`SaveOptions.describeClient`), since only the host knows which of its clients is a person. A file written before
+ * hosts could say has `kind: 'ai'` throughout and no `name`, and a host reads the person from the class name.
+ */
+export type ClientDescriptor = {
+  playerId: string;
+  kind: 'human' | 'ai';
+  module: string;
+  name?: string;
 };
 
 export type SerialisedEntity = {

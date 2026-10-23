@@ -3,15 +3,26 @@ import {
   idCounters,
   typeNameOf,
 } from '@civ-clone/core-data-object/DataObject';
-import { FORMAT, SaveError, SaveGame, SerialisedEntity } from './SaveGame';
+import {
+  ClientDescriptor,
+  FORMAT,
+  SaveError,
+  SaveGame,
+  SerialisedEntity,
+} from './SaveGame';
 import { DISPOSITIONS, slotsToSave } from './registries';
 import { Game, GameSlots } from '@civ-clone/core-game/Game';
 import { encode } from './encode';
+
+/** What the host says of a client, for the file: whether a person plays it, the class serving it, and the person's name. */
+export type DescribedClient = Omit<ClientDescriptor, 'playerId'>;
 
 export type SaveOptions = {
   name?: string;
   build?: string;
   createdAt?: number;
+  // How the host describes each client; a program playing it, by class name, when left out.
+  describeClient?: (client: unknown) => DescribedClient;
 };
 
 type Registry = { entries(): unknown[] };
@@ -83,6 +94,11 @@ const serialise = (
     state,
   };
 };
+
+const describeByClass = (client: unknown): DescribedClient => ({
+  kind: 'ai',
+  module: (client as { constructor: { name: string } }).constructor.name,
+});
 
 export const save = (game: Game, options: SaveOptions = {}): SaveGame => {
   assertDispositions(game);
@@ -196,15 +212,19 @@ export const save = (game: Game, options: SaveOptions = {}): SaveGame => {
       }),
       counter: game.cityNames.counter(),
     },
-    clients: game.clients.entries().map((client) => {
+    clients: game.clients.entries().map((client): ClientDescriptor => {
       const player = (
-        client as unknown as { player(): { id(): string } }
-      ).player();
+          client as unknown as { player(): { id(): string } }
+        ).player(),
+        { kind, module, name } = (options.describeClient ?? describeByClass)(
+          client
+        );
 
       return {
         playerId: player.id(),
-        kind: 'ai' as const,
-        module: client.constructor.name,
+        kind,
+        module,
+        ...(name === undefined ? {} : { name }),
       };
     }),
   };
