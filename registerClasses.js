@@ -54,6 +54,7 @@ const Slot_1 = require("@civ-clone/core-spaceship/Slot");
 const StrategyNote_1 = require("@civ-clone/core-strategy/StrategyNote");
 const Terminate_1 = require("@civ-clone/core-diplomacy/Negotiation/Terminate");
 const Tile_1 = require("@civ-clone/core-world/Tile");
+const UnitLoss_1 = require("@civ-clone/core-unit/UnitLoss");
 const Visibility_1 = require("@civ-clone/core-unit/Yields/Visibility");
 const WorkedTile_1 = require("@civ-clone/core-city/WorkedTile");
 const Specialist_1 = require("@civ-clone/core-city/Specialist");
@@ -84,6 +85,7 @@ const CORE_ENTITIES = [
     Movement_1.default,
     Moves_1.default,
     Research_1.default,
+    UnitLoss_1.default,
     Visibility_1.default,
     WorldPeace_1.default,
     // `core-diplomacy`'s concrete classes. A save names them as soon as two

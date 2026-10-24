@@ -65,6 +65,9 @@ exports.DISPOSITIONS = {
     // game had every unit aboard a ship stranded (civ-clone/web-renderer#81).
     transports: 'state',
     unitImprovements: 'state',
+    // The units each player has lost, by type: one `UnitLoss` per player and type lost, or none in a save made before
+    //  they were counted (civ-clone/web-renderer#405).
+    unitLosses: 'state',
     units: 'state',
     wonders: 'state',
     workedTiles: 'state',

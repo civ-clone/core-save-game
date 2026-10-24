@@ -54,6 +54,7 @@ import SpaceshipSlot from '@civ-clone/core-spaceship/Slot';
 import StrategyNote from '@civ-clone/core-strategy/StrategyNote';
 import Terminate from '@civ-clone/core-diplomacy/Negotiation/Terminate';
 import Tile from '@civ-clone/core-world/Tile';
+import UnitLoss from '@civ-clone/core-unit/UnitLoss';
 import Visibility from '@civ-clone/core-unit/Yields/Visibility';
 import WorkedTile from '@civ-clone/core-city/WorkedTile';
 import Specialist from '@civ-clone/core-city/Specialist';
@@ -85,6 +86,7 @@ const CORE_ENTITIES: SaveableClass[] = [
   Movement,
   Moves,
   Research,
+  UnitLoss,
   Visibility,
   WorldPeace,
 
