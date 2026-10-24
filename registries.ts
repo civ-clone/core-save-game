@@ -84,6 +84,9 @@ export const DISPOSITIONS: Record<keyof GameSlots, Disposition> = {
   // game had every unit aboard a ship stranded (civ-clone/web-renderer#81).
   transports: 'state',
   unitImprovements: 'state', // 1 Fortified
+  // The units each player has lost, by type: one `UnitLoss` per player and type lost, or none in a save made before
+  //  they were counted (civ-clone/web-renderer#405).
+  unitLosses: 'state',
   units: 'state', // 6 Settlers/Horseman/Warrior
   wonders: 'state', // empty at turn 8
   workedTiles: 'state', // 6 WorkedTile

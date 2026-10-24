@@ -404,6 +404,54 @@ describe('world peace', (): void => {
   });
 });
 
+describe('unit losses', (): void => {
+  class Warrior extends Unit {}
+
+  const gameWithLosses = (): { game: Game; player: Player } => {
+    const { game } = gameWithCycle(),
+      player = new Player(game.rules);
+
+    player.setCivilization(new Greek());
+    game.classes.register(Greek, Warrior);
+    game.players.register(player);
+    game.unitLosses.record(player, Warrior);
+    game.unitLosses.record(player, Warrior);
+
+    return { game, player };
+  };
+
+  it('should round-trip each player’s losses by unit type', (): void => {
+    const { game } = gameWithLosses(),
+      loaded = loadTargetFor(game);
+
+    hydrate(save(game, { name: 'test', createdAt: 0 }), loaded);
+
+    const [loadedPlayer] = loaded.players.entries(),
+      [unitLoss] = loaded.unitLosses.getByPlayer(loadedPlayer);
+
+    expect(loaded.unitLosses.length).to.equal(1);
+    expect(unitLoss.unit()).to.equal(Warrior);
+    expect(unitLoss.count()).to.equal(2);
+
+    loaded.unitLosses.record(loadedPlayer, Warrior);
+
+    expect(unitLoss.count()).to.equal(3);
+  });
+
+  it('should load a file written before they were counted with none', (): void => {
+    const { game } = gameWithLosses(),
+      file = save(game, { name: 'test', createdAt: 0 });
+
+    delete file.registries.unitLosses;
+
+    const loaded = loadTargetFor(game);
+
+    hydrate(file, loaded);
+
+    expect(loaded.unitLosses.length).to.equal(0);
+  });
+});
+
 /**
  * Just enough of a unit for a delayed action: an id, and a `_busy` holding the
  * rule, which `encode` writes as `$busy` and `hydrate` rebuilds.
