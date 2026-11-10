@@ -142,6 +142,9 @@ export const DISPOSITIONS: Record<keyof GameSlots, Disposition> = {
   clients: 'never',
 
   // Not registries.
+  // What each player asked their cities to choose by themselves: the page's options, sent again as a game starts or
+  //  loads, so not saved. Carried over to a loaded game, whose rules already hold it (civ-clone/web-renderer#873).
+  buildPreferences: 'context',
   classes: 'context',
   engine: 'context',
   rng: 'context',
