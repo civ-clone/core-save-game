@@ -1,3 +1,4 @@
+import { RuleSetChoice } from '@civ-clone/core-rule/RuleSetRegistry';
 /**
  * The save format, from `03-save-format.md`.
  *
@@ -80,10 +81,7 @@ export type SaveGame = {
    * played.
    */
   ruleSets?: {
-    choices: {
-      id: string;
-      value: boolean | string;
-    }[];
+    choices: RuleSetChoice[];
   };
   /** Descriptors, never the client objects — see `save.ts`. */
   clients: ClientDescriptor[];

@@ -37,7 +37,7 @@
     "@civ-clone/core-player": "^0.1.0",
     "@civ-clone/core-player-world": "^0.1.0",
     "@civ-clone/core-registry": "^0.1.0",
-    "@civ-clone/core-rule": "^0.1.7",
+    "@civ-clone/core-rule": "^0.1.8",
     "@civ-clone/core-score": "^0.1.0",
     "@civ-clone/core-science": "^0.1.0",
     "@civ-clone/core-spaceship": "^0.1.0",

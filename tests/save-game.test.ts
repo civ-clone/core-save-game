@@ -581,6 +581,48 @@ describe('rule sets', (): void => {
     );
   });
 
+  it('should restore into a game made from the rules alone, which has their sets', (): void => {
+    const game = ruled();
+
+    game.ruleSets.set('test:group', false);
+
+    const file = save(game, { name: 'test', createdAt: 0 });
+
+    // As a fresh boot would be: nothing chosen, and then the load target built from `rules` without `ruleSets`.
+    game.ruleSets.reset();
+
+    const loaded = loadTargetFor(game),
+      reported: unknown[] = [];
+
+    loaded.engine.on('save:rule-sets-unknown', (unknown: unknown): void => {
+      reported.push(unknown);
+    });
+
+    hydrate(file, loaded);
+
+    expect(loaded.ruleSets).to.equal(game.ruleSets);
+    expect(reported).to.deep.equal([]);
+    expect(loaded.rules.process(Example)).to.deep.equal(['c']);
+    expect(save(loaded, { name: 'test', createdAt: 0 }).ruleSets).to.deep.equal(
+      file.ruleSets
+    );
+  });
+
+  it('should refuse choices that are not a list of them, and switch nothing', (): void => {
+    const game = ruled(),
+      file = save(game, { name: 'test', createdAt: 0 }),
+      loaded = target(game);
+
+    (file as any).ruleSets = { choices: [null] };
+
+    expect((): void => hydrate(file, loaded)).to.throw(SaveError);
+
+    (file as any).ruleSets = { choices: 'test:group' };
+
+    expect((): void => hydrate(file, loaded)).to.throw(SaveError);
+    expect(loaded.rules.process(Example)).to.deep.equal(['a', 'b', 'c']);
+  });
+
   it('should load a file from before rule sets with every set as it starts', (): void => {
     const game = ruled(),
       { ruleSets, ...file } = save(game, { name: 'test', createdAt: 0 }),
