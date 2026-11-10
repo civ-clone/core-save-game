@@ -88,6 +88,10 @@ const hydrate = (save, game) => {
             _keys: [...keys],
         });
     });
+    // The rules the game was played with, before anything is rebuilt under them: the hooks of pass 3 are the first
+    //  thing here that can ask a rule anything. After the first two passes, so that a file this engine cannot read
+    //  (an unknown entity type) is refused before the rules of the game it was to be loaded into are switched.
+    restoreRuleSets(save, game);
     // Pass 3 — re-attach the collaborators and caches a file cannot carry, and
     // run any `onHydrated` hook. `inject` throws if it leaves a transient field
     // undefined, so a class this does not know about fails the load rather than
@@ -152,6 +156,31 @@ const hydrate = (save, game) => {
     game.engine.emit('save:loaded', save.meta);
 };
 exports.hydrate = hydrate;
+/**
+ * A game chooses its rule sets when it starts, and they are fixed from then
+ * on, so a loaded game has to be put back under the same ones
+ * (civ-clone/web-renderer#158).
+ *
+ * A choice that nothing registered answers to any more — a set from a plugin
+ * version that had it, say — is reported and not refused, on the same
+ * reasoning as version drift: the game still loads, and the host can tell the
+ * player which rules could not be put back. A file from before rule sets has
+ * none, and was played with every set as it starts.
+ */
+const restoreRuleSets = (save, game) => {
+    var _a, _b;
+    const choices = (_b = (_a = save.ruleSets) === null || _a === void 0 ? void 0 : _a.choices) !== null && _b !== void 0 ? _b : [];
+    if (!Array.isArray(choices) ||
+        choices.some((choice) => choice === null ||
+            typeof choice !== 'object' ||
+            typeof choice.id !== 'string')) {
+        throw new SaveGame_1.SaveError("The save's `ruleSets.choices` is not a list of `{ id, value }`.");
+    }
+    const unknown = game.ruleSets.restore(choices);
+    if (unknown.length > 0) {
+        game.engine.emit('save:rule-sets-unknown', unknown);
+    }
+};
 /**
  * `civ1-player` unregisters a civilisation when a player takes it, so no two
  * players share one. A fresh boot re-registers all of them, so a loaded game

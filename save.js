@@ -158,6 +158,9 @@ const save = (game, options = {}) => {
             }),
             counter: game.cityNames.counter(),
         },
+        ruleSets: {
+            choices: game.ruleSets.choices(),
+        },
         clients: game.clients.entries().map((client) => {
             var _a;
             const player = client.player(), { kind, module, name } = ((_a = options.describeClient) !== null && _a !== void 0 ? _a : describeByClass)(client);

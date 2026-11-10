@@ -117,6 +117,11 @@ export const hydrate = (save: SaveGame, game: Game): void => {
     });
   });
 
+  // The rules the game was played with, before anything is rebuilt under them: the hooks of pass 3 are the first
+  //  thing here that can ask a rule anything. After the first two passes, so that a file this engine cannot read
+  //  (an unknown entity type) is refused before the rules of the game it was to be loaded into are switched.
+  restoreRuleSets(save, game);
+
   // Pass 3 — re-attach the collaborators and caches a file cannot carry, and
   // run any `onHydrated` hook. `inject` throws if it leaves a transient field
   // undefined, so a class this does not know about fails the load rather than
@@ -202,6 +207,41 @@ export const hydrate = (save: SaveGame, game: Game): void => {
   reclaimCityNames(save, game, instances);
 
   game.engine.emit('save:loaded', save.meta);
+};
+
+/**
+ * A game chooses its rule sets when it starts, and they are fixed from then
+ * on, so a loaded game has to be put back under the same ones
+ * (civ-clone/web-renderer#158).
+ *
+ * A choice that nothing registered answers to any more — a set from a plugin
+ * version that had it, say — is reported and not refused, on the same
+ * reasoning as version drift: the game still loads, and the host can tell the
+ * player which rules could not be put back. A file from before rule sets has
+ * none, and was played with every set as it starts.
+ */
+const restoreRuleSets = (save: SaveGame, game: Game): void => {
+  const choices = save.ruleSets?.choices ?? [];
+
+  if (
+    !Array.isArray(choices) ||
+    choices.some(
+      (choice) =>
+        choice === null ||
+        typeof choice !== 'object' ||
+        typeof choice.id !== 'string'
+    )
+  ) {
+    throw new SaveError(
+      "The save's `ruleSets.choices` is not a list of `{ id, value }`."
+    );
+  }
+
+  const unknown = game.ruleSets.restore(choices);
+
+  if (unknown.length > 0) {
+    game.engine.emit('save:rule-sets-unknown', unknown);
+  }
 };
 
 /**

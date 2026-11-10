@@ -212,6 +212,9 @@ export const save = (game: Game, options: SaveOptions = {}): SaveGame => {
       }),
       counter: game.cityNames.counter(),
     },
+    ruleSets: {
+      choices: game.ruleSets.choices(),
+    },
     clients: game.clients.entries().map((client): ClientDescriptor => {
       const player = (
           client as unknown as { player(): { id(): string } }

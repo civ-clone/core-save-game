@@ -1,3 +1,4 @@
+import { RuleSetChoice } from '@civ-clone/core-rule/RuleSetRegistry';
 /**
  * The save format, from `03-save-format.md`.
  *
@@ -67,6 +68,20 @@ export type SaveGame = {
       civilization: string | null;
     }[];
     counter: number;
+  };
+  /**
+   * What the game chose in its rule sets, where that differs from how they
+   * start: a set or a rule switched on or off, or the member of a choice that
+   * was picked (civ-clone/web-renderer#158).
+   *
+   * The sets are registered by plugin imports, so only the choices are saved,
+   * and `hydrate` makes them again before anything else is restored. Optional
+   * without a format change, as `cityNames` is: a file written before this has
+   * none, and loads with every set as it starts, which is how that game was
+   * played.
+   */
+  ruleSets?: {
+    choices: RuleSetChoice[];
   };
   /** Descriptors, never the client objects — see `save.ts`. */
   clients: ClientDescriptor[];

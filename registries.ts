@@ -103,6 +103,10 @@ export const DISPOSITIONS: Record<keyof GameSlots, Disposition> = {
   //  imports, never changed by play (civ-clone/web-renderer#37).
   requirements: 'definitions',
   rules: 'definitions', // 1055 Rule
+  // The named groups of rules, registered with them by the same plugin imports. What a game *chose* in them is the
+  //  part that is saved, as `ruleSets.choices`, since the sets themselves are not entities
+  //  (civ-clone/web-renderer#158).
+  ruleSets: 'definitions',
   strategies: 'definitions', // AI strategy definitions
   traits: 'definitions', // 42 Trait — DataObjects, but definitions
   // Empty before and after a game, so there is nothing to classify from
