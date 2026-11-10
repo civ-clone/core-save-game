@@ -513,6 +513,28 @@ describe('requirements', (): void => {
   });
 });
 
+describe('build preferences', (): void => {
+  // The page's options, sent again as a game starts or loads (civ-clone/web-renderer#873): not saved, and the loaded
+  //  game keeps the registry its rules were given.
+  it('should not save them, and carry the registry over to the loaded game', (): void => {
+    const { game } = gameWithCycle(),
+      player = new Player();
+
+    game.players.register(player);
+    game.buildPreferences.set(player, { repeat: true });
+
+    const file = save(game, { name: 'test', createdAt: 0 }),
+      loaded = gameForLoad({
+        buildPreferences: game.buildPreferences,
+        classes: game.classes,
+        engine: game.engine,
+      });
+
+    expect(JSON.stringify(file)).to.not.contain('buildPreferences');
+    expect(loaded.buildPreferences).to.equal(game.buildPreferences);
+  });
+});
+
 describe('rule sets', (): void => {
   class Example extends Rule<[], string> {}
 
