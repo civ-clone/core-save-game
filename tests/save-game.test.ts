@@ -1,8 +1,11 @@
 import CityName from '@civ-clone/core-civilization/CityName';
 import Civilization from '@civ-clone/core-civilization/Civilization';
 import Difficulty from '@civ-clone/core-difficulty/Difficulty';
+import Effect from '@civ-clone/core-rule/Effect';
 import GameResult from '@civ-clone/core-turn-based-game/GameResult';
 import Player from '@civ-clone/core-player/Player';
+import Rule from '@civ-clone/core-rule/Rule';
+import RuleSet from '@civ-clone/core-rule/RuleSet';
 import { DataObject } from '@civ-clone/core-data-object/DataObject';
 import { EntityRegistry } from '@civ-clone/core-registry/EntityRegistry';
 import { Game } from '@civ-clone/core-game/Game';
@@ -507,6 +510,111 @@ describe('requirements', (): void => {
     expect(JSON.stringify(file)).to.not.contain('test:node/needs-a-label');
     expect(loaded.requirements).to.equal(game.requirements);
     expect(loaded.rules).to.equal(game.rules);
+  });
+});
+
+describe('rule sets', (): void => {
+  class Example extends Rule<[], string> {}
+
+  const named = (id: string): Example =>
+      new Example(id, new Effect((): string => id)),
+    ruled = (): Game => {
+      const { game } = gameWithCycle();
+
+      game.rules.register(named('a'), named('b'), named('c'), named('d'));
+      game.ruleSets.register(
+        new RuleSet('test:group', 'a', 'b'),
+        new RuleSet('test:choice', { exclusive: true }, 'c', 'd')
+      );
+
+      return game;
+    },
+    // As the plugins would have on a fresh boot: the same rules and sets, nothing chosen.
+    target = (game: Game): Game => {
+      const loaded = gameForLoad({
+        classes: game.classes,
+        engine: game.engine,
+      });
+
+      loaded.rules.register(named('a'), named('b'), named('c'), named('d'));
+      loaded.ruleSets.register(
+        new RuleSet('test:group', 'a', 'b'),
+        new RuleSet('test:choice', { exclusive: true }, 'c', 'd')
+      );
+
+      return loaded;
+    };
+
+  it('should write what was chosen, and nothing for a game that chose nothing', (): void => {
+    const game = ruled();
+
+    expect(save(game, { name: 'test', createdAt: 0 }).ruleSets).to.deep.equal({
+      choices: [],
+    });
+
+    game.ruleSets.set('test:group', false);
+    game.ruleSets.choose('test:choice', 'd');
+
+    expect(save(game, { name: 'test', createdAt: 0 }).ruleSets).to.deep.equal({
+      choices: [
+        { id: 'test:group', value: false },
+        { id: 'test:choice', value: 'd' },
+      ],
+    });
+  });
+
+  it('should put a loaded game under the rules it was played with', (): void => {
+    const game = ruled();
+
+    game.ruleSets.set('test:group', false);
+    game.ruleSets.choose('test:choice', 'd');
+
+    const loaded = target(game);
+
+    expect(loaded.rules.process(Example)).to.deep.equal(['a', 'b', 'c']);
+
+    hydrate(save(game, { name: 'test', createdAt: 0 }), loaded);
+
+    expect(loaded.rules.process(Example)).to.deep.equal(['d']);
+    expect(save(loaded, { name: 'test', createdAt: 0 }).ruleSets).to.deep.equal(
+      save(game, { name: 'test', createdAt: 0 }).ruleSets
+    );
+  });
+
+  it('should load a file from before rule sets with every set as it starts', (): void => {
+    const game = ruled(),
+      { ruleSets, ...file } = save(game, { name: 'test', createdAt: 0 }),
+      loaded = target(game);
+
+    // Whatever the game it is loaded into had chosen is not that file's.
+    loaded.ruleSets.set('test:group', false);
+
+    hydrate(file, loaded);
+
+    expect(ruleSets).to.deep.equal({ choices: [] });
+    expect(loaded.rules.process(Example)).to.deep.equal(['a', 'b', 'c']);
+  });
+
+  it('should load, and say so, when a choice names a set that is not there', (): void => {
+    const game = ruled(),
+      file = save(game, { name: 'test', createdAt: 0 }),
+      loaded = target(game),
+      reported: unknown[] = [];
+
+    file.ruleSets = {
+      choices: [
+        { id: 'test:gone', value: false },
+        { id: 'test:group', value: false },
+      ],
+    };
+    loaded.engine.on('save:rule-sets-unknown', (unknown: unknown): void => {
+      reported.push(unknown);
+    });
+
+    hydrate(file, loaded);
+
+    expect(reported).to.deep.equal([[{ id: 'test:gone', value: false }]]);
+    expect(loaded.rules.process(Example)).to.deep.equal(['c']);
   });
 });
 

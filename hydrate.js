@@ -65,6 +65,8 @@ const hydrate = (save, game) => {
     // process that went unnoticed: the loaded game adopted the same `Turn`
     // object the saved one had been counting. The year follows from the turn.
     game.turn.set(save.meta.turn);
+    // The rules the game was played with, before anything is rebuilt under them.
+    restoreRuleSets(save, game);
     (0, DataObject_1.restoreIdCounters)(save.idCounters);
     game.rng.restore(save.rng.seed, save.rng.calls);
     const instances = new Map();
@@ -152,6 +154,24 @@ const hydrate = (save, game) => {
     game.engine.emit('save:loaded', save.meta);
 };
 exports.hydrate = hydrate;
+/**
+ * A game chooses its rule sets when it starts, and they are fixed from then
+ * on, so a loaded game has to be put back under the same ones
+ * (civ-clone/web-renderer#158).
+ *
+ * A choice that nothing registered answers to any more — a set from a plugin
+ * version that had it, say — is reported and not refused, on the same
+ * reasoning as version drift: the game still loads, and the host can tell the
+ * player which rules could not be put back. A file from before rule sets has
+ * none, and was played with every set as it starts.
+ */
+const restoreRuleSets = (save, game) => {
+    var _a, _b;
+    const unknown = game.ruleSets.restore((_b = (_a = save.ruleSets) === null || _a === void 0 ? void 0 : _a.choices) !== null && _b !== void 0 ? _b : []);
+    if (unknown.length > 0) {
+        game.engine.emit('save:rule-sets-unknown', unknown);
+    }
+};
 /**
  * `civ1-player` unregisters a civilisation when a player takes it, so no two
  * players share one. A fresh boot re-registers all of them, so a loaded game

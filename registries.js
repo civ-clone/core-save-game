@@ -83,6 +83,10 @@ exports.DISPOSITIONS = {
     //  imports, never changed by play (civ-clone/web-renderer#37).
     requirements: 'definitions',
     rules: 'definitions',
+    // The named groups of rules, registered with them by the same plugin imports. What a game *chose* in them is the
+    //  part that is saved, as `ruleSets.choices`, since the sets themselves are not entities
+    //  (civ-clone/web-renderer#158).
+    ruleSets: 'definitions',
     strategies: 'definitions',
     traits: 'definitions',
     // Empty before and after a game, so there is nothing to classify from
