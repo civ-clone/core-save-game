@@ -24,6 +24,9 @@ import { save } from '../save';
 import Action from '@civ-clone/core-unit/Action';
 import Busy from '@civ-clone/core-unit/Rules/Busy';
 import Client from '@civ-clone/core-client/Client';
+import Firepower from '@civ-clone/core-unit/Yields/Firepower';
+import HitPoints from '@civ-clone/core-unit/Yields/HitPoints';
+import Tile from '@civ-clone/core-world/Tile';
 import Unit from '@civ-clone/core-unit/Unit';
 import { delayedBusy } from '@civ-clone/core-unit/delayedBusy';
 import { registerDelayedAction } from '@civ-clone/core-unit/registerDelayedAction';
@@ -1011,5 +1014,60 @@ describe('assertCompatible', (): void => {
     );
 
     expect(drifted).to.deep.equal([['@civ-clone/core-save-game older → test']]);
+  });
+});
+
+describe('unit damage', (): void => {
+  class Soldier extends Unit {}
+
+  const gameWithSoldiers = (): {
+    game: Game;
+    damaged: Soldier;
+    whole: Soldier;
+  } => {
+    const game = new Game(),
+      player = new Player(game.rules),
+      damaged = new Soldier(null, player, null as unknown as Tile, game.rules),
+      whole = new Soldier(null, player, null as unknown as Tile, game.rules);
+
+    game.engine.registerPlugins(PLUGINS);
+    registerClasses(game);
+    game.classes.register(Soldier);
+    damaged.setDamage(7);
+    game.pendingEffects.register(
+      new PendingEffect('test:damaged', damaged, { endTurn: '1' }),
+      new PendingEffect('test:whole', whole, { endTurn: '1' })
+    );
+
+    return { game, damaged, whole };
+  };
+
+  it('should know the hit point and firepower yields by name', (): void => {
+    const { game } = gameWithSoldiers();
+
+    expect(game.classes.get('HitPoints')).to.equal(HitPoints);
+    expect(game.classes.get('Firepower')).to.equal(Firepower);
+  });
+
+  it('should write damage only for a damaged unit, and restore it', (): void => {
+    const { game, damaged, whole } = gameWithSoldiers(),
+      file = save(game, { name: 'test', createdAt: 0 }),
+      state = (unit: Unit) =>
+        file.entities.find(({ id }) => id === unit.id())!.state;
+
+    expect(state(damaged)).to.have.property('_damage', 7);
+    expect(state(whole)).not.to.have.property('_damage');
+
+    const loaded = loadTargetFor(game);
+
+    hydrate(file, loaded);
+
+    const [loadedDamaged, loadedWhole] = loaded.pendingEffects
+      .entries()
+      .map((effect) => effect.target() as Soldier);
+
+    expect(loadedDamaged.damage()).to.equal(7);
+    expect(loadedWhole.damage()).to.equal(0);
+    expect(Object.keys(loadedWhole)).not.to.include('_damage');
   });
 });

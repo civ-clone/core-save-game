@@ -27,10 +27,12 @@ import Decline from '@civ-clone/core-diplomacy/Proposal/Decline';
 import Defence from '@civ-clone/core-unit/Yields/Defence';
 import Dialogue from '@civ-clone/core-diplomacy/Negotiation/Dialogue';
 import Expiry from '@civ-clone/core-diplomacy/Expiry';
+import Firepower from '@civ-clone/core-unit/Yields/Firepower';
 import FoodStorage from '@civ-clone/core-city-growth/Yields/FoodStorage';
 import GameDifficulty from '@civ-clone/core-difficulty/GameDifficulty';
 import GameResult from '@civ-clone/core-turn-based-game/GameResult';
 import GoodyHut from '@civ-clone/core-goody-hut/GoodyHut';
+import HitPoints from '@civ-clone/core-unit/Yields/HitPoints';
 import Initiate from '@civ-clone/core-diplomacy/Negotiation/Initiate';
 import Interaction from '@civ-clone/core-diplomacy/Interaction';
 import LandMass from '@civ-clone/core-world/LandMass';
@@ -80,9 +82,11 @@ const CORE_ENTITIES: SaveableClass[] = [
   Capacity,
   CargoWeight,
   Defence,
+  Firepower,
   FoodStorage,
   GameDifficulty,
   GameResult,
+  HitPoints,
   Movement,
   Moves,
   Research,
