@@ -1,9 +1,11 @@
 import CityName from '@civ-clone/core-civilization/CityName';
+import Attitude from '@civ-clone/core-diplomacy/Attitude';
 import Civilization from '@civ-clone/core-civilization/Civilization';
 import Difficulty from '@civ-clone/core-difficulty/Difficulty';
 import Effect from '@civ-clone/core-rule/Effect';
 import GameResult from '@civ-clone/core-turn-based-game/GameResult';
 import Player from '@civ-clone/core-player/Player';
+import Reputation from '@civ-clone/core-diplomacy/Reputation';
 import Rule from '@civ-clone/core-rule/Rule';
 import RuleSet from '@civ-clone/core-rule/RuleSet';
 import { DataObject } from '@civ-clone/core-data-object/DataObject';
@@ -407,6 +409,71 @@ describe('world peace', (): void => {
     hydrate(file, loaded);
 
     expect(loaded.worldPeace.turns()).to.equal(0);
+  });
+});
+
+describe('attitude and reputation', (): void => {
+  const gameWithRelations = (): { game: Game; a: Player; b: Player } => {
+    const { game } = gameWithCycle(),
+      a = new Player(game.rules),
+      b = new Player(game.rules);
+
+    // Every player has a civilization in a real game, and loading claims each one.
+    a.setCivilization(new Greek());
+    b.setCivilization(new English());
+    game.classes.register(Greek, English);
+    game.players.register(a, b);
+
+    return { game, a, b };
+  };
+
+  it('should round-trip each direction of attitude, each reputation and each credit', (): void => {
+    const { game, a, b } = gameWithRelations(),
+      attitude = new Attitude(game.interactions, game.rules, game.turn),
+      reputation = new Reputation(game.interactions, game.rules, game.turn);
+
+    attitude.set(a, b, 30);
+    attitude.set(b, a, 75);
+    reputation.set(a, 2);
+    reputation.setCredit(b, a, 1);
+
+    const loaded = loadTargetFor(game);
+
+    hydrate(save(game, { name: 'test', createdAt: 0 }), loaded);
+
+    const [loadedA, loadedB] = loaded.players.entries(),
+      loadedAttitude = new Attitude(
+        loaded.interactions,
+        loaded.rules,
+        loaded.turn
+      ),
+      loadedReputation = new Reputation(
+        loaded.interactions,
+        loaded.rules,
+        loaded.turn
+      );
+
+    expect(loaded.interactions.entries()).to.have.length(4);
+    expect(loadedAttitude.get(loadedA, loadedB)).to.equal(30);
+    expect(loadedAttitude.get(loadedB, loadedA)).to.equal(75);
+    expect(loadedReputation.get(loadedA)).to.equal(2);
+    expect(loadedReputation.get(loadedB)).to.equal(0);
+    expect(loadedReputation.credit(loadedB, loadedA)).to.equal(1);
+
+    // Changed after the load, the same records are kept.
+    loadedAttitude.adjust(loadedA, loadedB, 5);
+    loadedReputation.adjust(loadedA, 1);
+
+    expect(loadedAttitude.get(loadedA, loadedB)).to.equal(35);
+    expect(loadedReputation.get(loadedA)).to.equal(3);
+    expect(loaded.interactions.entries()).to.have.length(4);
+  });
+
+  it('should save no records for a game that never set any', (): void => {
+    const { game } = gameWithRelations(),
+      file = save(game, { name: 'test', createdAt: 0 });
+
+    expect(file.registries.interactions).to.deep.equal([]);
   });
 });
 

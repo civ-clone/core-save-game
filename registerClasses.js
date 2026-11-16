@@ -20,6 +20,7 @@ const TransportManifest_1 = require("@civ-clone/core-unit-transport/TransportMan
 const CityGrowth_1 = require("@civ-clone/core-city-growth/CityGrowth");
 const Civilization_1 = require("@civ-clone/core-civilization/Civilization");
 const Abstain_1 = require("@civ-clone/core-diplomacy/Proposal/Abstain");
+const AttitudeRecord_1 = require("@civ-clone/core-diplomacy/Records/AttitudeRecord");
 const Accept_1 = require("@civ-clone/core-diplomacy/Proposal/Accept");
 const Acknowledge_1 = require("@civ-clone/core-diplomacy/Proposal/Acknowledge");
 const Declaration_1 = require("@civ-clone/core-diplomacy/Declaration");
@@ -49,6 +50,8 @@ const PlayerTradeRates_1 = require("@civ-clone/core-trade-rate/PlayerTradeRates"
 const PlayerTreasury_1 = require("@civ-clone/core-treasury/PlayerTreasury");
 const PendingEffect_1 = require("@civ-clone/core-pending-effect/PendingEffect");
 const PlayerWorld_1 = require("@civ-clone/core-player-world/PlayerWorld");
+const ReputationCreditRecord_1 = require("@civ-clone/core-diplomacy/Records/ReputationCreditRecord");
+const ReputationRecord_1 = require("@civ-clone/core-diplomacy/Records/ReputationRecord");
 const Spaceship_1 = require("@civ-clone/core-spaceship/Spaceship");
 const Layout_1 = require("@civ-clone/core-spaceship/Layout");
 const Part_1 = require("@civ-clone/core-spaceship/Part");
@@ -105,6 +108,11 @@ const CORE_ENTITIES = [
     Negotiation_1.default,
     Never_1.default,
     Terminate_1.default,
+    // Attitude and reputation (`Attitude`, `Reputation`): records a rule set makes the first time it sets one, so a
+    // game that never does has none, and a save names them once one does.
+    AttitudeRecord_1.default,
+    ReputationCreditRecord_1.default,
+    ReputationRecord_1.default,
     BuildCost_1.default,
     BuildItem_1.default,
     BuildProgress_1.default,

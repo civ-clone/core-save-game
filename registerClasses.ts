@@ -20,6 +20,7 @@ import TransportManifest from '@civ-clone/core-unit-transport/TransportManifest'
 import CityGrowth from '@civ-clone/core-city-growth/CityGrowth';
 import Civilization from '@civ-clone/core-civilization/Civilization';
 import Abstain from '@civ-clone/core-diplomacy/Proposal/Abstain';
+import AttitudeRecord from '@civ-clone/core-diplomacy/Records/AttitudeRecord';
 import Accept from '@civ-clone/core-diplomacy/Proposal/Accept';
 import Acknowledge from '@civ-clone/core-diplomacy/Proposal/Acknowledge';
 import Declaration from '@civ-clone/core-diplomacy/Declaration';
@@ -49,6 +50,8 @@ import PlayerTradeRates from '@civ-clone/core-trade-rate/PlayerTradeRates';
 import PlayerTreasury from '@civ-clone/core-treasury/PlayerTreasury';
 import PendingEffect from '@civ-clone/core-pending-effect/PendingEffect';
 import PlayerWorld from '@civ-clone/core-player-world/PlayerWorld';
+import ReputationCreditRecord from '@civ-clone/core-diplomacy/Records/ReputationCreditRecord';
+import ReputationRecord from '@civ-clone/core-diplomacy/Records/ReputationRecord';
 import Spaceship from '@civ-clone/core-spaceship/Spaceship';
 import SpaceshipLayout from '@civ-clone/core-spaceship/Layout';
 import SpaceshipPart from '@civ-clone/core-spaceship/Part';
@@ -107,6 +110,11 @@ const CORE_ENTITIES: SaveableClass[] = [
   Negotiation,
   Never,
   Terminate,
+  // Attitude and reputation (`Attitude`, `Reputation`): records a rule set makes the first time it sets one, so a
+  // game that never does has none, and a save names them once one does.
+  AttitudeRecord,
+  ReputationCreditRecord,
+  ReputationRecord,
 
   BuildCost,
   BuildItem,
